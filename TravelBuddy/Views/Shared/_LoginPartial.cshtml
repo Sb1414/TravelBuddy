@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                <button type="submit" class="nav-link btn btn-link">Выйти</button>
+            </form>
+        </li>
+        <li class="nav-item">
+            <span class="nav-link">Привет, @User.Identity.Name!</span>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Account" asp-action="Login">Вход</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Account" asp-action="Register">Регистрация</a>
+        </li>
+    }
+</ul>
+
