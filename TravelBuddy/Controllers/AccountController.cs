@@ -118,17 +118,20 @@ public class AccountController : Controller
             user.PassportNumber = model.PassportNumber;
             user.City = model.City;
 
-            // Загрузка фото профиля
-            if (model.ProfilePicture != null)
+            if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
             {
-                // Логика сохранения файла на сервере
-                // Пример: сохранение в папку wwwroot/images/profiles
-                var filePath = Path.Combine("wwwroot/images/profiles", $"{user.Id}.jpg");
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var uploadsFolder = Path.Combine("wwwroot", "images", "profiles");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{user.Id}_{Path.GetFileName(model.ProfilePicture.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await model.ProfilePicture.CopyToAsync(stream);
+                    await model.ProfilePicture.CopyToAsync(fileStream);
                 }
-                user.ProfilePictureUrl = $"/images/profiles/{user.Id}.jpg";
+
+                user.ProfilePictureUrl = $"/images/profiles/{uniqueFileName}";
             }
 
             await _userManager.UpdateAsync(user);
@@ -137,4 +140,5 @@ public class AccountController : Controller
 
         return View(model);
     }
+
 }
