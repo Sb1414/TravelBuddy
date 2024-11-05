@@ -79,7 +79,7 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
     
-     [HttpGet]
+    [HttpGet]
     public async Task<IActionResult> Profile()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -96,6 +96,7 @@ public class AccountController : Controller
             PassportNumber = user.PassportNumber,
             City = user.City,
             ProfilePictureUrl = user.ProfilePictureUrl,
+            PhoneNumber = user.PhoneNumber,
             ChangePasswordModel = new ChangePasswordViewModel()
         };
 
@@ -103,9 +104,13 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Profile(ProfileViewModel model)
     {
+        ModelState.Remove("ChangePasswordModel");
+        ModelState.Remove("ProfilePicture");
+        ModelState.Remove("ProfilePictureUrl");
+        
         if (ModelState.IsValid)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -119,6 +124,7 @@ public class AccountController : Controller
             user.PassportSeries = model.PassportSeries;
             user.PassportNumber = model.PassportNumber;
             user.City = model.City;
+            user.PhoneNumber = model.PhoneNumber;
 
             if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
             {
@@ -140,6 +146,7 @@ public class AccountController : Controller
         
             if (updateResult.Succeeded)
             {
+                TempData["SuccessMessage"] = "Данные профиля успешно обновлены.";
                 return RedirectToAction("Profile");
             }
             else
@@ -152,6 +159,7 @@ public class AccountController : Controller
         }
         return View(model);
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]

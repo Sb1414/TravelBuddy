@@ -26,5 +26,9 @@ public class ProfileViewModel
     [Display(Name = "Загрузить фото")]
     public IFormFile ProfilePicture { get; set; }
     
+    [Display(Name = "Номер телефона")]
+    [Phone(ErrorMessage = "Некорректный формат номера телефона.")]
+    public string PhoneNumber { get; set; } 
+    
     public ChangePasswordViewModel ChangePasswordModel { get; set; }
 }
