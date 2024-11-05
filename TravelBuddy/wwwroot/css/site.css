@@ -20,3 +20,37 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+header {
+  background-color: #333; /* Тёмный фон для всего хедера */
+  color: #fff; /* Белый цвет текста */
+}
+
+.navbar {
+  background-color: #333 !important; /* Тёмный фон для навигационной панели */
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .nav-link:hover {
+  color: #fff !important; /* Белый цвет текста для ссылок и бренда */
+}
+
+.navbar .nav-link.active {
+  color: #ccc !important; /* Цвет для активной ссылки */
+}
+
+footer {
+  background-color: rgba(0, 0, 0, 0.8); /* Полупрозрачный тёмный фон */
+  color: #fff; /* Белый цвет текста */
+  padding: 15px 0; /* Отступы для увеличения пространства */
+  border-top: none !important; /* Удаляет верхнюю окантовку */
+}
+
+footer a {
+  color: #bbb; /* Цвет ссылок в футере */
+}
+
+footer a:hover {
+  color: #fff; /* Цвет ссылок при наведении */
+}

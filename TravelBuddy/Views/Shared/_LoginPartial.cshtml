@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 
 <ul class="navbar-nav">
     @if (User.Identity.IsAuthenticated)
@@ -11,7 +11,7 @@
             </form>
         </li>
         <li class="nav-item">
-            <span class="nav-link">Привет, @User.Identity.Name!</span>
+            <a class="nav-link" asp-controller="Account" asp-action="Profile">Привет, @User.Identity.Name!</a>
         </li>
     }
     else
