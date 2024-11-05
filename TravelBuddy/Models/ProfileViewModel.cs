@@ -25,4 +25,6 @@ public class ProfileViewModel
 
     [Display(Name = "Загрузить фото")]
     public IFormFile ProfilePicture { get; set; }
+    
+    public ChangePasswordViewModel ChangePasswordModel { get; set; }
 }

@@ -57,11 +57,11 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
-        if(ModelState.IsValid)
+        if (ModelState.IsValid)
         {
             var result = await _signInManager.PasswordSignInAsync(
                 model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -95,12 +95,14 @@ public class AccountController : Controller
             PassportSeries = user.PassportSeries,
             PassportNumber = user.PassportNumber,
             City = user.City,
-            ProfilePictureUrl = user.ProfilePictureUrl
+            ProfilePictureUrl = user.ProfilePictureUrl,
+            ChangePasswordModel = new ChangePasswordViewModel()
         };
 
         return View(model);
     }
 
+    [HttpPost]
     [HttpPost]
     public async Task<IActionResult> Profile(ProfileViewModel model)
     {
@@ -134,11 +136,60 @@ public class AccountController : Controller
                 user.ProfilePictureUrl = $"/images/profiles/{uniqueFileName}";
             }
 
-            await _userManager.UpdateAsync(user);
-            return RedirectToAction("Profile");
+            var updateResult = await _userManager.UpdateAsync(user);
+        
+            if (updateResult.Succeeded)
+            {
+                return RedirectToAction("Profile");
+            }
+            else
+            {
+                foreach (var error in updateResult.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
         }
-
         return View(model);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ProfileViewModel model)
+    {
+        if (!User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        
+        ModelState.Clear();
+
+        TryValidateModel(model.ChangePasswordModel);
+        
+        if (!ModelState.IsValid)
+        {
+            return View("Profile", model);
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, model.ChangePasswordModel.OldPassword, model.ChangePasswordModel.NewPassword);
+    
+        if (result.Succeeded)
+        {
+            TempData["SuccessMessage"] = "Пароль успешно изменен.";
+            return RedirectToAction("Profile");
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View("Profile", model);
+    }
 }
