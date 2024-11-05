@@ -15,4 +15,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Messages\Chat.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Messages\Index.cshtml" />
+  </ItemGroup>
+
 </Project>

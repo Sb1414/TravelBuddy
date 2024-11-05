@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelBuddy.Data;
 
@@ -11,9 +12,11 @@ using TravelBuddy.Data;
 namespace TravelBuddy.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241105184928_AddMessagesTableId")]
+    partial class AddMessagesTableId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,31 +245,6 @@ namespace TravelBuddy.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("TravelBuddy.Models.Conversation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("User1Id")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("User2Id")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("User1Id");
-
-                    b.HasIndex("User2Id");
-
-                    b.ToTable("Conversation");
-                });
-
             modelBuilder.Entity("TravelBuddy.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -280,9 +258,6 @@ namespace TravelBuddy.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("ConversationId")
-                        .HasColumnType("int");
-
                     b.Property<string>("RecipientId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -295,8 +270,6 @@ namespace TravelBuddy.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ConversationId");
 
                     b.HasIndex("RecipientId");
 
@@ -356,32 +329,8 @@ namespace TravelBuddy.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TravelBuddy.Models.Conversation", b =>
-                {
-                    b.HasOne("TravelBuddy.Models.ApplicationUser", "User1")
-                        .WithMany()
-                        .HasForeignKey("User1Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TravelBuddy.Models.ApplicationUser", "User2")
-                        .WithMany()
-                        .HasForeignKey("User2Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User1");
-
-                    b.Navigation("User2");
-                });
-
             modelBuilder.Entity("TravelBuddy.Models.Message", b =>
                 {
-                    b.HasOne("TravelBuddy.Models.Conversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("TravelBuddy.Models.ApplicationUser", "Recipient")
                         .WithMany()
                         .HasForeignKey("RecipientId")
@@ -394,16 +343,9 @@ namespace TravelBuddy.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Conversation");
-
                     b.Navigation("Recipient");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("TravelBuddy.Models.Conversation", b =>
-                {
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,4 @@
-@model List<TravelBuddy.Models.UserListViewModel>
+@Html.AntiForgeryToken()
 
 <div class="row">
     @foreach (var user in Model)
@@ -8,12 +8,124 @@
                 <div class="d-flex align-items-center">
                     <img src="@user.ProfilePictureUrl" class="rounded-circle mr-3" alt="Фото профиля" style="width: 50px; height: 50px;">
                     <div>
-                        <h5 class="mb-0">@user.FullName</h5>
-                        <small>Возраст: @user.Age ?? "Не указан"</small><br />
-                        <small>Город: @user.City ?? "Не указан"</small>
+                        <h5 class="mb-0">
+                        <a href="javascript:void(0);" onclick="showMessageForm('@user.Id')">
+                            @user.FullName
+                        </a>
+                        </h5>
+                        <small>Возраст: @(user.Age != null ? user.Age.ToString() : "Не указан")</small>
+                        <small>Город: @(string.IsNullOrEmpty(user.City) ? "Не указан" : user.City)</small>
                     </div>
                 </div>
             </div>
         </div>
     }
 </div>
+
+<!-- Модальное окно для отправки сообщения -->
+<div id="messageModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Написать сообщение <span id="recipientName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <input type="hidden" id="recipientId" name="recipientId" />
+                    <div class="form-group">
+                        <label for="messageContent">Сообщение:</label>
+                        <textarea id="messageContent" name="content" class="form-control" required></textarea>
+                    </div>
+                    <button type="button" onclick="sendMessage()" class="btn btn-primary">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showMessageForm(recipientId) {
+            // Форма для отправки сообщения
+            const messageFormHtml = `
+                <div class="message-form-overlay">
+                    <div class="message-form-container">
+                        <h4>Написать сообщение</h4>
+                        <textarea id="messageContent" class="form-control" placeholder="Введите ваше сообщение"></textarea>
+                        <button class="btn btn-primary mt-2" onclick="sendMessage('${recipientId}')">Отправить</button>
+                        <button class="btn btn-secondary mt-2" onclick="closeMessageForm()">Отмена</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', messageFormHtml);
+        }
+
+        function closeMessageForm() {
+            const overlay = document.querySelector('.message-form-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        function sendMessage(recipientId) {
+            const content = document.getElementById('messageContent').value.trim();
+            
+            // Проверка значения контента
+            console.log("Content _: ", content);
+        
+            if (!content) {
+                alert('Сообщение не может быть пустым');
+                return;
+            }
+        
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        
+            fetch('/People/SendMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ recipientId: recipientId, content: content })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Сообщение отправлено');
+                } else {
+                    alert('Ошибка при отправке сообщения');
+                }
+                closeMessageForm();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при отправке сообщения');
+                closeMessageForm();
+            });
+        }
+
+
+    </script>
+    
+    <style>
+        .message-form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .message-form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 100%;
+        }
+    </style>
+}
