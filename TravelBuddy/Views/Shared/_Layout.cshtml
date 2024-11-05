@@ -17,7 +17,7 @@
     <div class="background-shape shape-1 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Login" ? "lightened" : "")"></div>
     <div class="background-shape shape-2"></div>
     <div class="background-shape shape-3"></div>
-    <div class="background-shape shape-4"></div>
+    <div class="background-shape shape-4 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Profile" ? "lightened" : "")"></div>
 </div>
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -38,6 +38,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#hostels" data-shape="shape-3">Гостиницы</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="People" asp-action="Peoples">Люди</a>
+                    </li>
+
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>
@@ -52,7 +56,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2024 - TravelBuddy - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2024 - TravelBuddy
     </div>
 </footer>
 <script src="~/js/custom-background.js"></script>

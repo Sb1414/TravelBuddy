@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TravelBuddy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf24b45d3786bcbbbc6d9a8f4b207f25088238b9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bff20ce4c5affe48d996cb94af807fa5a4c6f40c")]
 [assembly: System.Reflection.AssemblyProductAttribute("TravelBuddy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TravelBuddy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

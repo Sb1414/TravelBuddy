@@ -29,6 +29,22 @@
       "PackagePath": "staticwebassets\\images\\profiles\\78a9cfb1-8702-469b-8f71-ab707852dcff_Clipboard_2024.10.15_10-51-29.png"
     },
     {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\images\\profiles\\bdc80fb8-c846-4a33-8953-d4e994855466_Clipboard_2024.10.14_11-14-33.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\bdc80fb8-c846-4a33-8953-d4e994855466_Clipboard_2024.10.14_11-14-33.png"
+    },
+    {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\images\\profiles\\default-avatar.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\default-avatar.png"
+    },
+    {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\images\\profiles\\e0baff22-2a88-49ef-b610-5c0db9def20a_Clipboard_2024.10.14_11-14-33.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\e0baff22-2a88-49ef-b610-5c0db9def20a_Clipboard_2024.10.14_11-14-33.png"
+    },
+    {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\images\\profiles\\vse-ravno-goret.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\vse-ravno-goret.png"
+    },
+    {
       "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\js\\custom-background.js",
       "PackagePath": "staticwebassets\\js\\custom-background.js"
     },

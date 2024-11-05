@@ -1,0 +1,83 @@
+@model List<TravelBuddy.Models.UserListViewModel>
+
+@{
+    ViewData["Title"] = "Люди";
+}
+
+<h2>Люди</h2>
+
+<div class="mb-4">
+    <label>Фильтр:</label>
+    <select id="filterBy" class="form-control d-inline-block w-25">
+        <option value="">Выберите фильтр</option>
+        <option value="FullName">ФИО</option>
+        <option value="Age">Возраст</option>
+        <option value="City">Город</option>
+    </select>
+    <select id="filterValue" class="form-control d-inline-block w-25 ml-2">
+        <option value="">Выберите значение</option>
+    </select>
+    <button onclick="applyFilter()" class="btn btn-primary ml-2">Применить</button>
+    <button onclick="resetFilter()" class="btn btn-secondary ml-2">Сбросить фильтр</button>
+</div>
+
+<div id="people-list">
+    @Html.Partial("_PeopleList", Model)
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("filterBy").addEventListener("change", function () {
+            const filterBy = this.value;
+            const filterValueSelect = document.getElementById("filterValue");
+
+            if (filterBy) {
+                fetch(`/People/GetFilterValues?filterBy=${filterBy}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        filterValueSelect.innerHTML = '<option value="">Выберите значение</option>';
+                        data.forEach(value => {
+                            filterValueSelect.innerHTML += `<option value="${value}">${value}</option>`;
+                        });
+                        filterValueSelect.disabled = false;
+                    });
+            } else {
+                filterValueSelect.innerHTML = '<option value="">Выберите значение</option>';
+                filterValueSelect.disabled = true;
+            }
+        });
+
+        // применение фильтра
+        function applyFilter() {
+            const filterBy = document.getElementById("filterBy").value;
+            const filterValue = document.getElementById("filterValue").value;
+
+            fetch(`/People/Peoples?filterBy=${filterBy}&filterValue=${filterValue}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("people-list").innerHTML = html;
+            });
+        }
+
+        // сброс фильтра
+        function resetFilter() {
+            document.getElementById("filterBy").value = "";
+            document.getElementById("filterValue").innerHTML = '<option value="">Выберите значение</option>';
+            document.getElementById("filterValue").disabled = true;
+
+            fetch(`/People/Peoples`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("people-list").innerHTML = html;
+            });
+        }
+    </script>
+}
