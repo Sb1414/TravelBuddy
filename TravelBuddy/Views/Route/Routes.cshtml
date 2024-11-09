@@ -1,6 +1,6 @@
 @model List<TravelBuddy.Models.UserRoute>
 @{
-ViewData["Title"] = "Маршруты";
+    ViewData["Title"] = "Маршруты";
 }
 
 <h2>Маршруты</h2>
@@ -9,14 +9,33 @@ ViewData["Title"] = "Маршруты";
 <div class="row">
     @foreach (var route in Model)
     {
-    <div class="col-md-4 mb-3">
-        <div class="card p-3">
-            <h5>Отправление: @route.DepartureCity</h5>
-            <p>Назначение: @route.DestinationCity</p>
-            <p>Туда: @route.TransportationTo</p>
-            <p>Время пребывания: @route.Duration @route.DurationType</p>
-            <p>Обратно: @route.TransportationBack</p>
+        var firstStop = route.RouteStops.FirstOrDefault();
+        var lastStop = route.RouteStops.LastOrDefault();
+
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Название маршрута: @route.RouteName</h5>
+                @if (firstStop != null && lastStop != null)
+                {
+                    <p>Отправление: @firstStop.DestinationCity</p>
+                    <p>Назначение: @lastStop.DestinationCity</p>
+                }
+                else
+                {
+                    <p>Маршрут не содержит городов</p>
+                }
+                <h6>Остановки:</h6>
+                <ul>
+                    @foreach (var stop in route.RouteStops)
+                    {
+                        <li>
+                            <strong>Город:</strong> @stop.DestinationCity <br />
+                            <strong>Транспорт:</strong> @stop.Transportation <br />
+                            <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
-    </div>
     }
 </div>

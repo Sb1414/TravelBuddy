@@ -8,53 +8,39 @@
 <form asp-action="Create" method="post" class="form-row">
     @Html.AntiForgeryToken()
     
-    <!-- Поля формы в две колонки -->
-    <div class="col-md-6 form-group">
-        <label asp-for="DepartureCity"></label>
-        <input asp-for="DepartureCity" class="form-control city-autocomplete" placeholder="Выберите город" />
+    <div class="form-group">
+        <label asp-for="RouteName"></label>
+        <input asp-for="RouteName" class="form-control" />
     </div>
-    
-    <div class="col-md-6 form-group">
-        <label asp-for="DestinationCity"></label>
-        <input asp-for="DestinationCity" class="form-control city-autocomplete" placeholder="Выберите город" />
+
+    <div id="stops-container">
+        <!-- Контейнер для остановок маршрута -->
+        <h4>Остановки</h4>
+        <div class="stop-fields">
+            <label>Город назначения</label>
+            <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
+
+            <label>Средство передвижения</label>
+            <select name="RouteStops[0].Transportation" class="form-control">
+                <option value="Машина">Машина</option>
+                <option value="Самолет">Самолет</option>
+                <option value="Поезд">Поезд</option>
+                <option value="Автобус">Автобус</option>
+            </select>
+
+            <label>Время пребывания</label>
+            <input type="number" name="RouteStops[0].Duration" class="form-control" />
+
+            <label>Тип времени</label>
+            <select name="RouteStops[0].DurationType" class="form-control">
+                <option value="Дни">Дни</option>
+                <option value="Часы">Часы</option>
+            </select>
+        </div>
     </div>
-    
-    <div class="col-md-6 form-group">
-        <label asp-for="TransportationTo"></label>
-        <select asp-for="TransportationTo" class="form-control">
-            <option value="Машина">Машина</option>
-            <option value="Самолет">Самолет</option>
-            <option value="Поезд">Поезд</option>
-            <option value="Автобус">Автобус</option>
-        </select>
-    </div>
-    
-    <div class="col-md-3 form-group">
-        <label asp-for="Duration"></label>
-        <input asp-for="Duration" type="number" class="form-control" min="1" placeholder="Введите время" />
-    </div>
-    
-    <div class="col-md-3 form-group">
-        <label asp-for="DurationType"></label>
-        <select asp-for="DurationType" class="form-control">
-            <option value="Дни">Дни</option>
-            <option value="Часы">Часы</option>
-        </select>
-    </div>
-    
-    <div class="col-md-6 form-group">
-        <label asp-for="TransportationBack"></label>
-        <select asp-for="TransportationBack" class="form-control">
-            <option value="Машина">Машина</option>
-            <option value="Самолет">Самолет</option>
-            <option value="Поезд">Поезд</option>
-            <option value="Автобус">Автобус</option>
-        </select>
-    </div>
-    
-    <div class="col-md-12">
-        <button type="submit" class="btn btn-primary mt-3">Создать</button>
-    </div>
+
+    <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
+    <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
 </form>
 
 @section Scripts {
@@ -63,6 +49,36 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
 
     <script>
+        let stopCount = 1;        
+        // Функция для добавления новой остановки
+        document.getElementById('add-stop-btn').addEventListener('click', function () {
+            const stopsContainer = document.getElementById('stops-container');
+            const stopHtml = `
+                <div class="stop-fields mt-3">
+                    <label>Город назначения</label>
+                    <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete" />
+
+                    <label>Средство передвижения</label>
+                    <select name="RouteStops[${stopCount}].Transportation" class="form-control">
+                        <option value="Машина">Машина</option>
+                        <option value="Самолет">Самолет</option>
+                        <option value="Поезд">Поезд</option>
+                        <option value="Автобус">Автобус</option>
+                    </select>
+
+                    <label>Время пребывания</label>
+                    <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" />
+
+                    <label>Тип времени</label>
+                    <select name="RouteStops[${stopCount}].DurationType" class="form-control">
+                        <option value="Дни">Дни</option>
+                        <option value="Часы">Часы</option>
+                    </select>
+                </div>`;
+            stopsContainer.insertAdjacentHTML('beforeend', stopHtml);
+            stopCount++;
+        });
+                
         $(function () {
             $(".city-autocomplete").autocomplete({
                 source: function (request, response) {
@@ -72,7 +88,8 @@
                         data: {
                             q: request.term,
                             limit: 10,
-                            appid: "0cf9d3890ebd408a5573cb606afe3d73"
+                            appid: "0cf9d3890ebd408a5573cb606afe3d73",
+                            lang: "ru"
                         },
                         success: function (data) {
                             response($.map(data, function (item) {

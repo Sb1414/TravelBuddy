@@ -40,10 +40,22 @@ public class RouteController : Controller
             if (user == null) return Unauthorized();
 
             model.UserId = user.Id;
+
+            // добавляем маршрут
             _context.Routes.Add(model);
+            await _context.SaveChangesAsync();
+
+            // добавляем остановки маршрута
+            foreach (var stop in model.RouteStops)
+            {
+                stop.RouteId = model.Id; // привязка остановок к маршруту
+                _context.RouteStops.Add(stop);
+            }
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Routes");
         }
         return View(model);
     }
+
 }
