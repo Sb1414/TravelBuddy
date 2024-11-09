@@ -1,0 +1,91 @@
+@model TravelBuddy.Models.UserRoute
+@{
+    ViewData["Title"] = "Создать маршрут";
+}
+
+<h2>Создать маршрут</h2>
+
+<form asp-action="Create" method="post" class="form-row">
+    @Html.AntiForgeryToken()
+    
+    <!-- Поля формы в две колонки -->
+    <div class="col-md-6 form-group">
+        <label asp-for="DepartureCity"></label>
+        <input asp-for="DepartureCity" class="form-control city-autocomplete" placeholder="Выберите город" />
+    </div>
+    
+    <div class="col-md-6 form-group">
+        <label asp-for="DestinationCity"></label>
+        <input asp-for="DestinationCity" class="form-control city-autocomplete" placeholder="Выберите город" />
+    </div>
+    
+    <div class="col-md-6 form-group">
+        <label asp-for="TransportationTo"></label>
+        <select asp-for="TransportationTo" class="form-control">
+            <option value="Машина">Машина</option>
+            <option value="Самолет">Самолет</option>
+            <option value="Поезд">Поезд</option>
+            <option value="Автобус">Автобус</option>
+        </select>
+    </div>
+    
+    <div class="col-md-3 form-group">
+        <label asp-for="Duration"></label>
+        <input asp-for="Duration" type="number" class="form-control" min="1" placeholder="Введите время" />
+    </div>
+    
+    <div class="col-md-3 form-group">
+        <label asp-for="DurationType"></label>
+        <select asp-for="DurationType" class="form-control">
+            <option value="Дни">Дни</option>
+            <option value="Часы">Часы</option>
+        </select>
+    </div>
+    
+    <div class="col-md-6 form-group">
+        <label asp-for="TransportationBack"></label>
+        <select asp-for="TransportationBack" class="form-control">
+            <option value="Машина">Машина</option>
+            <option value="Самолет">Самолет</option>
+            <option value="Поезд">Поезд</option>
+            <option value="Автобус">Автобус</option>
+        </select>
+    </div>
+    
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary mt-3">Создать</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
+
+    <script>
+        $(function () {
+            $(".city-autocomplete").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "http://api.openweathermap.org/geo/1.0/direct",
+                        dataType: "json",
+                        data: {
+                            q: request.term,
+                            limit: 10,
+                            appid: "0cf9d3890ebd408a5573cb606afe3d73"
+                        },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.name + (item.state ? ", " + item.state : "") + ", " + item.country,
+                                    value: item.name
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2
+            });
+        });
+    </script>
+}

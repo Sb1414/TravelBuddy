@@ -13,6 +13,8 @@ namespace TravelBuddy.Data
 
 		// Добавьте DbSet для сообщений
 		public DbSet<Message> Messages { get; set; }
+		public DbSet<UserRoute> Routes { get; set; }
+
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

@@ -1,0 +1,22 @@
+@model List<TravelBuddy.Models.UserRoute>
+@{
+ViewData["Title"] = "Маршруты";
+}
+
+<h2>Маршруты</h2>
+<a class="btn btn-primary mb-3" asp-action="Create">Создать маршрут</a>
+
+<div class="row">
+    @foreach (var route in Model)
+    {
+    <div class="col-md-4 mb-3">
+        <div class="card p-3">
+            <h5>Отправление: @route.DepartureCity</h5>
+            <p>Назначение: @route.DestinationCity</p>
+            <p>Туда: @route.TransportationTo</p>
+            <p>Время пребывания: @route.Duration @route.DurationType</p>
+            <p>Обратно: @route.TransportationBack</p>
+        </div>
+    </div>
+    }
+</div>
