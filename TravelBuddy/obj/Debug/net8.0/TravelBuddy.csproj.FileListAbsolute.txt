@@ -145,3 +145,4 @@ C:\Users\Sabina.Kalkamanova\source\repos\TravelBuddy\TravelBuddy\obj\Debug\net8.
 C:\Users\Sabina.Kalkamanova\source\repos\TravelBuddy\TravelBuddy\obj\Debug\net8.0\TravelBuddy.pdb
 C:\Users\Sabina.Kalkamanova\source\repos\TravelBuddy\TravelBuddy\obj\Debug\net8.0\TravelBuddy.genruntimeconfig.cache
 C:\Users\Sabina.Kalkamanova\source\repos\TravelBuddy\TravelBuddy\obj\Debug\net8.0\ref\TravelBuddy.dll
+C:\Users\Sabina.Kalkamanova\source\repos\TravelBuddy\TravelBuddy\bin\Debug\net8.0\Newtonsoft.Json.dll

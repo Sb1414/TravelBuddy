@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using TravelBuddy.Data;
 using TravelBuddy.Models;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace TravelBuddy.Controllers;
 
@@ -17,45 +19,100 @@ public class RouteController : Controller
         _context = context;
         _userManager = userManager;
     }
-    
+
     public async Task<IActionResult> Routes()
     {
-        var routes = await _context.Routes.ToListAsync();
+        var routes = await _context.UserRoutes
+            .Include(r => r.RouteStops)
+            .ToListAsync();
         return View(routes);
     }
 
+    
     [HttpGet]
     public IActionResult Create()
     {
         return View();
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserRoute model)
+    public async Task<IActionResult> Create(UserRoute route, string routeStopsData)
     {
+        if (!User.Identity.IsAuthenticated)
+        {
+            return Json(new { success = false, message = "Пользователь не авторизован" });
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Json(new { success = false, message = "Не удалось получить текущего пользователя" });
+        }
+
+        route.UserId = currentUser.Id;
+        route.RouteName = route.RouteName ?? "Маршрут";
+        
+        ModelState.Remove("UserId"); 
+        for (int i = 0; i < route.RouteStops.Count; i++)
+        {
+            ModelState.Remove($"RouteStops[{i}].Route");
+        }
+
+        route.RouteStops.Clear();
         if (ModelState.IsValid)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            model.UserId = user.Id;
-
-            // добавляем маршрут
-            _context.Routes.Add(model);
-            await _context.SaveChangesAsync();
-
-            // добавляем остановки маршрута
-            foreach (var stop in model.RouteStops)
+            try
             {
-                stop.RouteId = model.Id; // привязка остановок к маршруту
-                _context.RouteStops.Add(stop);
+                _context.UserRoutes.Add(route);
+                await _context.SaveChangesAsync();
+
+                var stopsData = JsonConvert.DeserializeObject<Dictionary<int, RouteStop>>(routeStopsData);
+
+                foreach (var stopData in stopsData.Values)
+                {
+                    var stop = new RouteStop
+                    {
+                        RouteId = route.Id,
+                        Route = route, // Привязываем объект Route к каждому RouteStop
+                        DestinationCity = stopData.DestinationCity,
+                        Transportation = stopData.Transportation,
+                        Duration = stopData.Duration,
+                        DurationType = stopData.DurationType,
+                        Latitude = stopData.Latitude,
+                        Longitude = stopData.Longitude
+                    };
+
+                    _context.RouteStops.Add(stop);
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Маршрут и остановки успешно сохранены!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка при сохранении данных: {ex.Message}" });
+            }
+        }
+        else
+        {
+            var errorDetails = ModelState
+                .Where(ms => ms.Value.Errors.Count > 0)
+                .Select(ms => new 
+                {
+                    Field = ms.Key,
+                    Errors = ms.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                })
+                .ToList();
+
+            Console.WriteLine("Ошибки валидации:");
+            foreach (var error in errorDetails)
+            {
+                Console.WriteLine($"Поле: {error.Field}, Ошибки: {string.Join(", ", error.Errors)}");
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Routes");
+            return Json(new { success = false, message = "Ошибки валидации", errors = errorDetails });
         }
-        return View(model);
     }
-
 }

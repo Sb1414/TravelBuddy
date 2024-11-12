@@ -8,14 +8,12 @@ public class UserRoute
     [Key]
     public int Id { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Поле UserId обязательно.")]
     public string UserId { get; set; }
-    
-    public virtual ApplicationUser User { get; set; }
-    
+
+    [Required(ErrorMessage = "Поле Название маршрута обязательно.")]
     [Display(Name = "Название маршрута")]
     public string RouteName { get; set; }
 
-    // Навигационное свойство для связи с RouteStop
     public virtual ICollection<RouteStop> RouteStops { get; set; } = new List<RouteStop>();
 }

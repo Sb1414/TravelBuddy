@@ -49,59 +49,123 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
 
     <script>
-        let stopCount = 1;        
-        // Функция для добавления новой остановки
-        document.getElementById('add-stop-btn').addEventListener('click', function () {
-            const stopsContainer = document.getElementById('stops-container');
-            const stopHtml = `
-                <div class="stop-fields mt-3">
-                    <label>Город назначения</label>
-                    <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete" />
-
-                    <label>Средство передвижения</label>
-                    <select name="RouteStops[${stopCount}].Transportation" class="form-control">
-                        <option value="Машина">Машина</option>
-                        <option value="Самолет">Самолет</option>
-                        <option value="Поезд">Поезд</option>
-                        <option value="Автобус">Автобус</option>
-                    </select>
-
-                    <label>Время пребывания</label>
-                    <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" />
-
-                    <label>Тип времени</label>
-                    <select name="RouteStops[${stopCount}].DurationType" class="form-control">
-                        <option value="Дни">Дни</option>
-                        <option value="Часы">Часы</option>
-                    </select>
-                </div>`;
-            stopsContainer.insertAdjacentHTML('beforeend', stopHtml);
-            stopCount++;
-        });
-                
         $(function () {
-            $(".city-autocomplete").autocomplete({
-                source: function (request, response) {
-                    $.ajax({
-                        url: "http://api.openweathermap.org/geo/1.0/direct",
-                        dataType: "json",
-                        data: {
-                            q: request.term,
-                            limit: 10,
-                            appid: "0cf9d3890ebd408a5573cb606afe3d73",
-                            lang: "ru"
-                        },
-                        success: function (data) {
-                            response($.map(data, function (item) {
-                                return {
-                                    label: item.name + (item.state ? ", " + item.state : "") + ", " + item.country,
-                                    value: item.name
-                                };
-                            }));
+            let stopCount = 1;
+            const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты)
+        
+            // Функция для автозаполнения городов и получения координат
+            $(document).on("focus", ".city-autocomplete", function () {
+                $(this).autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "http://api.openweathermap.org/geo/1.0/direct",
+                            dataType: "json",
+                            data: {
+                                q: request.term,
+                                limit: 10,
+                                appid: "0cf9d3890ebd408a5573cb606afe3d73",
+                                lang: "ru"
+                            },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.name + (item.state ? ", " + item.state : "") + ", " + item.country,
+                                        value: item.name,
+                                        latitude: item.lat,
+                                        longitude: item.lon
+                                    };
+                                }));
+                            }
+                        });
+                    },
+                    minLength: 2,
+                    select: function (event, ui) {
+                        const stopIndex = $(this).attr("name").match(/\d+/)[0];
+                        routeStopsData[stopIndex] = {
+                            DestinationCity: ui.item.value,
+                            Latitude: ui.item.latitude,
+                            Longitude: ui.item.longitude,
+                            Transportation: $(this).closest('.stop-fields').find('select[name*="Transportation"]').val(),
+                            Duration: $(this).closest('.stop-fields').find('input[name*="Duration"]').val(),
+                            DurationType: $(this).closest('.stop-fields').find('select[name*="DurationType"]').val()
+                        };
+                    }
+                });
+            });
+            
+            // Обновление routeStopsData при изменении полей транспорта, времени и типа времени
+            $(document).on("change", ".stop-fields select, .stop-fields input[type='number']", function () {
+                const stopIndex = $(this).closest('.stop-fields').find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
+                if (routeStopsData[stopIndex]) {
+                    routeStopsData[stopIndex].Transportation = $(this).closest('.stop-fields').find('select[name*="Transportation"]').val();
+                    routeStopsData[stopIndex].Duration = $(this).closest('.stop-fields').find('input[name*="Duration"]').val();
+                    routeStopsData[stopIndex].DurationType = $(this).closest('.stop-fields').find('select[name*="DurationType"]').val();
+                }
+            });
+        
+            // Проверка, что пользователь выбрал город из списка
+            $(document).on("blur", ".city-autocomplete", function () {
+                const stopIndex = $(this).attr("name").match(/\d+/)[0];
+                if (!routeStopsData[stopIndex] || routeStopsData[stopIndex].DestinationCity !== $(this).val()) {
+                    $(this).val(""); // Очистить поле, если выбор не из списка
+                    alert("Пожалуйста, выберите город из предложенного списка.");
+                }
+            });
+        
+            // Функция для добавления новой остановки
+            document.getElementById('add-stop-btn').addEventListener('click', function () {
+                const stopsContainer = document.getElementById('stops-container');
+                const stopHtml = `
+                    <div class="stop-fields mt-3">
+                        <label>Город назначения</label>
+                        <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete" />
+        
+                        <label>Средство передвижения</label>
+                        <select name="RouteStops[${stopCount}].Transportation" class="form-control">
+                            <option value="Машина">Машина</option>
+                            <option value="Самолет">Самолет</option>
+                            <option value="Поезд">Поезд</option>
+                            <option value="Автобус">Автобус</option>
+                        </select>
+        
+                        <label>Время пребывания</label>
+                        <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" />
+        
+                        <label>Тип времени</label>
+                        <select name="RouteStops[${stopCount}].DurationType" class="form-control">
+                            <option value="Дни">Дни</option>
+                            <option value="Часы">Часы</option>
+                        </select>
+                    </div>`;
+                stopsContainer.insertAdjacentHTML('beforeend', stopHtml);
+                stopCount++;
+            });
+        
+            // Передача данных остановок (включая координаты) при отправке формы
+            $('form').on('submit', function (e) {
+                e.preventDefault(); // Отключаем стандартное поведение отправки формы
+            
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: $(this).attr('method'),
+                    data: $(this).serialize() + "&routeStopsData=" + encodeURIComponent(JSON.stringify(routeStopsData)),
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message); // Выводим сообщение об успешном сохранении
+                            window.location.href = "/Route/Routes"; // Перенаправляем на страницу с маршрутами
+                        } else {
+                            console.error("Ошибка при сохранении маршрута:", response.message);
+                            if (response.errors) {
+                                console.log("Ошибки валидации:", response.errors);
+                            }
+                            alert("Произошла ошибка: " + response.message);
                         }
-                    });
-                },
-                minLength: 2
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Произошла ошибка при сохранении маршрута:", error);
+                        alert("Произошла ошибка при создании маршрута.");
+                    }
+                });
             });
         });
     </script>

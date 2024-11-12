@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "9ixVM/j/ZKZgQGpBRYcRAaNbGc4YMicmXQhv9ryk4D0feJ924ZHZJCehzjykCvYScEidy32UNy0MJM7mTXQCvw==",
+  "dgSpecHash": "5jDMrl3We3XFc1VU7rsW3BfV8k9TVFlGWdxiUShTbX34xBP67qSDp1iiy3984ZsvKiu04bTukDixcoi/ksZFxA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\TravelBuddy.csproj",
   "expectedPackageFiles": [
@@ -55,6 +55,7 @@
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\system.composition\\6.0.0\\system.composition.6.0.0.nupkg.sha512",

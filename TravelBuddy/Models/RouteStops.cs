@@ -29,4 +29,10 @@ public class RouteStop
     [Required]
     [Display(Name = "Тип времени")]
     public string DurationType { get; set; } // "Дни" или "Часы"
+    
+    [Display(Name = "Широта")]
+    public double Latitude { get; set; }
+
+    [Display(Name = "Долгота")]
+    public double Longitude { get; set; }
 }
