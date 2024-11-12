@@ -1,0 +1,73 @@
+@using Newtonsoft.Json
+@model TravelBuddy.Models.UserRoute
+@{
+    ViewData["Title"] = "Детали маршрута";
+}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+
+<h2>Детали маршрута</h2>
+
+<div class="card p-4">
+    <h4>@Model.RouteName</h4>
+    <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+
+    @if (Model.RouteStops.Any())
+    {
+        <p><strong>Отправление:</strong> @Model.RouteStops.First().DestinationCity</p>
+        <p><strong>Назначение:</strong> @Model.RouteStops.Last().DestinationCity</p>
+        <h5>Остановки:</h5>
+        <ul>
+            @foreach (var stop in Model.RouteStops)
+            {
+                <li>
+                    <strong>Город:</strong> @stop.DestinationCity <br />
+                    <strong>Транспорт:</strong> @stop.Transportation <br />
+                    <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Маршрут не содержит городов</p>
+    }
+</div>
+        
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+        // Инициализация карты
+        const map = L.map('map').setView([55.751244, 37.618423], 5); // Центр карты (Москва)
+
+        // Добавление слоя карты OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Данные об остановках маршрута, исключаем циклические ссылки
+        const stops = @Html.Raw(JsonConvert.SerializeObject(Model.RouteStops.Select(stop => new {
+            DestinationCity = stop.DestinationCity,
+            Transportation = stop.Transportation,
+            Duration = stop.Duration,
+            DurationType = stop.DurationType,
+            Latitude = stop.Latitude,
+            Longitude = stop.Longitude
+        })));
+
+        // Добавление маркеров на карту
+        stops.forEach(stop => {
+            const marker = L.marker([stop.Latitude, stop.Longitude]).addTo(map)
+                .bindPopup(`<b>${stop.DestinationCity}</b><br>Транспорт: ${stop.Transportation}<br>Время пребывания: ${stop.Duration} ${stop.DurationType}`);
+        });
+
+        // Масштабирование карты для отображения всех маркеров
+        const bounds = L.latLngBounds(stops.map(stop => [stop.Latitude, stop.Longitude]));
+        map.fitBounds(bounds);
+    </script>
+}
+        

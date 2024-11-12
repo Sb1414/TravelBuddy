@@ -13,29 +13,31 @@
         var lastStop = route.RouteStops.LastOrDefault();
 
         <div class="col-md-4 mb-3">
-            <div class="card p-3">
-                <h5>Название маршрута: @route.RouteName</h5>
-                @if (firstStop != null && lastStop != null)
-                {
-                    <p>Отправление: @firstStop.DestinationCity</p>
-                    <p>Назначение: @lastStop.DestinationCity</p>
-                }
-                else
-                {
-                    <p>Маршрут не содержит городов</p>
-                }
-                <h6>Остановки:</h6>
-                <ul>
-                    @foreach (var stop in route.RouteStops)
+            <a asp-action="Details" asp-route-id="@route.Id" class="text-decoration-none text-dark">
+                <div class="card p-3">
+                    <h5>Название маршрута: @route.RouteName</h5>
+                    @if (firstStop != null && lastStop != null)
                     {
-                        <li>
-                            <strong>Город:</strong> @stop.DestinationCity <br />
-                            <strong>Транспорт:</strong> @stop.Transportation <br />
-                            <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
-                        </li>
+                        <p>Отправление: @firstStop.DestinationCity</p>
+                        <p>Назначение: @lastStop.DestinationCity</p>
                     }
-                </ul>
-            </div>
+                    else
+                    {
+                        <p>Маршрут не содержит городов</p>
+                    }
+                    <h6>Остановки:</h6>
+                    <ul>
+                        @foreach (var stop in route.RouteStops)
+                        {
+                            <li>
+                                <strong>Город:</strong> @stop.DestinationCity <br />
+                                <strong>Транспорт:</strong> @stop.Transportation <br />
+                                <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </a>
         </div>
     }
 </div>

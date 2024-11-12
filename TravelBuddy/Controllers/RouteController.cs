@@ -115,4 +115,20 @@ public class RouteController : Controller
             return Json(new { success = false, message = "Ошибки валидации", errors = errorDetails });
         }
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var route = await _context.UserRoutes
+            .Include(r => r.RouteStops)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (route == null)
+        {
+            return NotFound();
+        }
+
+        return View(route);
+    }
+
 }
