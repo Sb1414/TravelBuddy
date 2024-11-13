@@ -13,34 +13,41 @@
         <input asp-for="RouteName" class="form-control" />
     </div>
 
-    <div id="stops-container">
-        <!-- Контейнер для остановок маршрута -->
-        <h4>Остановки</h4>
-        <div class="stop-fields">
-            <label>Город назначения</label>
-            <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
-
-            <label>Средство передвижения</label>
-            <select name="RouteStops[0].Transportation" class="form-control">
-                <option value="Машина">Машина</option>
-                <option value="Самолет">Самолет</option>
-                <option value="Поезд">Поезд</option>
-                <option value="Автобус">Автобус</option>
-            </select>
-
-            <label>Время пребывания</label>
-            <input type="number" name="RouteStops[0].Duration" class="form-control" />
-
-            <label>Тип времени</label>
-            <select name="RouteStops[0].DurationType" class="form-control">
-                <option value="Дни">Дни</option>
-                <option value="Часы">Часы</option>
-            </select>
-        </div>
-    </div>
-
-    <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
-    <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
+   <div id="stops-container">
+       <!-- Контейнер для остановок маршрута -->
+       <h4>Остановки</h4>
+       <div class="stop-fields">
+           <label>Город назначения</label>
+           <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
+   
+           <!-- Дополнительные поля, которые станут видимыми после нажатия на + -->
+           <div class="additional-fields mt-2" style="display: none;">
+               <label>Средство передвижения</label>
+               <select name="RouteStops[0].Transportation" class="form-control">
+                   <option value="Машина">Машина</option>
+                   <option value="Самолет">Самолет</option>
+                   <option value="Поезд">Поезд</option>
+                   <option value="Автобус">Автобус</option>
+               </select>
+   
+               <div class="form-inline mt-2">
+                   <div style="flex: 1;">
+                       <label>Время пребывания</label>
+                       <input type="number" name="RouteStops[0].Duration" class="form-control" style="width: 100%;" />
+                   </div>
+                   <div style="flex: 1;">
+                       <label>Тип времени</label>
+                       <select name="RouteStops[0].DurationType" class="form-control" style="width: 100%;">
+                           <option value="Дни">Дни</option>
+                           <option value="Часы">Часы</option>
+                       </select>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+   <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
+   <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
 </form>
 
 @section Scripts {
@@ -51,9 +58,9 @@
     <script>
         $(function () {
             let stopCount = 1;
-            const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты)
-        
-            // Функция для автозаполнения городов и получения координат
+            const routeStopsData = {}; // объект для хранения данных остановок (включая координаты)
+            
+            // функция для автозаполнения городов и получения координат
             $(document).on("focus", ".city-autocomplete", function () {
                 $(this).autocomplete({
                     source: function (request, response) {
@@ -85,57 +92,62 @@
                             DestinationCity: ui.item.value,
                             Latitude: ui.item.latitude,
                             Longitude: ui.item.longitude,
-                            Transportation: $(this).closest('.stop-fields').find('select[name*="Transportation"]').val(),
-                            Duration: $(this).closest('.stop-fields').find('input[name*="Duration"]').val(),
-                            DurationType: $(this).closest('.stop-fields').find('select[name*="DurationType"]').val()
+                            Transportation: null,
+                            Duration: null,
+                            DurationType: null
                         };
                     }
                 });
             });
-            
-            // Обновление routeStopsData при изменении полей транспорта, времени и типа времени
+        
+            // обновление routeStopsData только если выбраны значения
             $(document).on("change", ".stop-fields select, .stop-fields input[type='number']", function () {
                 const stopIndex = $(this).closest('.stop-fields').find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
                 if (routeStopsData[stopIndex]) {
-                    routeStopsData[stopIndex].Transportation = $(this).closest('.stop-fields').find('select[name*="Transportation"]').val();
-                    routeStopsData[stopIndex].Duration = $(this).closest('.stop-fields').find('input[name*="Duration"]').val();
-                    routeStopsData[stopIndex].DurationType = $(this).closest('.stop-fields').find('select[name*="DurationType"]').val();
+                    routeStopsData[stopIndex].Transportation = $(this).closest('.stop-fields').find('select[name*="Transportation"]').val() || null;
+                    routeStopsData[stopIndex].Duration = $(this).closest('.stop-fields').find('input[name*="Duration"]').val() || null;
+                    routeStopsData[stopIndex].DurationType = $(this).closest('.stop-fields').find('select[name*="DurationType"]').val() || null;
                 }
             });
         
-            // Проверка, что пользователь выбрал город из списка
-            $(document).on("blur", ".city-autocomplete", function () {
-                const stopIndex = $(this).attr("name").match(/\d+/)[0];
-                if (!routeStopsData[stopIndex] || routeStopsData[stopIndex].DestinationCity !== $(this).val()) {
-                    $(this).val(""); // Очистить поле, если выбор не из списка
-                    alert("Пожалуйста, выберите город из предложенного списка.");
-                }
-            });
-        
-            // Функция для добавления новой остановки
+            // добавление новой остановки при нажатии на +
             document.getElementById('add-stop-btn').addEventListener('click', function () {
+                // делаем видимыми дополнительные поля для предыдущей остановки
+                $('#stops-container .stop-fields:last .additional-fields').show();
+        
+                // добавляем новый блок с только полем города назначения
                 const stopsContainer = document.getElementById('stops-container');
                 const stopHtml = `
                     <div class="stop-fields mt-3">
                         <label>Город назначения</label>
                         <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete" />
         
-                        <label>Средство передвижения</label>
-                        <select name="RouteStops[${stopCount}].Transportation" class="form-control">
-                            <option value="Машина">Машина</option>
-                            <option value="Самолет">Самолет</option>
-                            <option value="Поезд">Поезд</option>
-                            <option value="Автобус">Автобус</option>
-                        </select>
+                        <!-- Поля, которые станут видимыми только после нажатия на + -->
+                        <div class="additional-fields mt-2" style="display: none;">
+                            <label>Средство передвижения</label>
+                            <select name="RouteStops[${stopCount}].Transportation" class="form-control">
+                                <option value="">Не выбрано</option>
+                                <option value="Машина">Машина</option>
+                                <option value="Самолет">Самолет</option>
+                                <option value="Поезд">Поезд</option>
+                                <option value="Автобус">Автобус</option>
+                            </select>
         
-                        <label>Время пребывания</label>
-                        <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" />
-        
-                        <label>Тип времени</label>
-                        <select name="RouteStops[${stopCount}].DurationType" class="form-control">
-                            <option value="Дни">Дни</option>
-                            <option value="Часы">Часы</option>
-                        </select>
+                            <div class="form-inline mt-2">
+                                <div style="flex: 1;">
+                                    <label>Время пребывания</label>
+                                    <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" style="width: 100%;" />
+                                </div>
+                                <div style="flex: 1;">
+                                    <label>Тип времени</label>
+                                    <select name="RouteStops[${stopCount}].DurationType" class="form-control" style="width: 100%;">
+                                        <option value="">Не выбрано</option>
+                                        <option value="Дни">Дни</option>
+                                        <option value="Часы">Часы</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>`;
                 stopsContainer.insertAdjacentHTML('beforeend', stopHtml);
                 stopCount++;
@@ -144,7 +156,7 @@
             // Передача данных остановок (включая координаты) при отправке формы
             $('form').on('submit', function (e) {
                 e.preventDefault(); // Отключаем стандартное поведение отправки формы
-            
+        
                 $.ajax({
                     url: $(this).attr('action'),
                     type: $(this).attr('method'),
@@ -165,7 +177,7 @@
                         console.error("Произошла ошибка при сохранении маршрута:", error);
                         alert("Произошла ошибка при создании маршрута.");
                     }
-                });
+                });                
             });
         });
     </script>

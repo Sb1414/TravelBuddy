@@ -18,17 +18,14 @@ public class RouteStop
     [Display(Name = "Город назначения")]
     public string DestinationCity { get; set; }
 
-    [Required]
     [Display(Name = "Средство передвижения")]
-    public string Transportation { get; set; }
+    public string? Transportation { get; set; }
 
-    [Required]
     [Display(Name = "Время пребывания")]
-    public int Duration { get; set; }
+    public int? Duration { get; set; }
 
-    [Required]
     [Display(Name = "Тип времени")]
-    public string DurationType { get; set; } // "Дни" или "Часы"
+    public string? DurationType { get; set; } // "Дни" или "Часы"
     
     [Display(Name = "Широта")]
     public double Latitude { get; set; }
