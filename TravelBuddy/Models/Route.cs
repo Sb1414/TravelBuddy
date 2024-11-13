@@ -10,6 +10,9 @@ public class UserRoute
 
     [Required(ErrorMessage = "Поле UserId обязательно.")]
     public string UserId { get; set; }
+    
+    [ForeignKey("UserId")]
+    public virtual ApplicationUser ApplicationUser { get; set; }
 
     [Required(ErrorMessage = "Поле Название маршрута обязательно.")]
     [Display(Name = "Название маршрута")]

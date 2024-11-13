@@ -11,6 +11,7 @@
     {
         var firstStop = route.RouteStops.FirstOrDefault();
         var lastStop = route.RouteStops.LastOrDefault();
+        var stopsList = route.RouteStops.ToList(); // в List для поддержки индексации
 
         <div class="col-md-4 mb-3">
             <a asp-action="Details" asp-route-id="@route.Id" class="text-decoration-none text-dark">
@@ -27,12 +28,17 @@
                     }
                     <h6>Остановки:</h6>
                     <ul>
-                        @foreach (var stop in route.RouteStops)
+                        @for (int i = 0; i < stopsList.Count; i++)
                         {
+                            var stop = stopsList[i];
                             <li>
                                 <strong>Город:</strong> @stop.DestinationCity <br />
-                                <strong>Транспорт:</strong> @stop.Transportation <br />
-                                <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                                
+                                @if (i != stopsList.Count - 1)
+                                {
+                                    <strong>Транспорт:</strong> @stop.Transportation <br />
+                                    <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                                }
                             </li>
                         }
                     </ul>

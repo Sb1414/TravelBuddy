@@ -121,6 +121,7 @@ public class RouteController : Controller
     {
         var route = await _context.UserRoutes
             .Include(r => r.RouteStops)
+            .Include(r => r.ApplicationUser) // Загрузка данных о пользователе
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (route == null)
@@ -130,5 +131,6 @@ public class RouteController : Controller
 
         return View(route);
     }
+
 
 }

@@ -45,6 +45,10 @@
       "PackagePath": "staticwebassets\\images\\profiles\\vse-ravno-goret.png"
     },
     {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\js\\createRoute.js",
+      "PackagePath": "staticwebassets\\js\\createRoute.js"
+    },
+    {
       "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\js\\custom-background.js",
       "PackagePath": "staticwebassets\\js\\custom-background.js"
     },

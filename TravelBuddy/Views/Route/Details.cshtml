@@ -19,12 +19,17 @@
         <p><strong>Назначение:</strong> @Model.RouteStops.Last().DestinationCity</p>
         <h5>Остановки:</h5>
         <ul>
-            @foreach (var stop in Model.RouteStops)
+            @for (int i = 0; i < Model.RouteStops.Count; i++)
             {
+                var stop = Model.RouteStops.ElementAt(i);
                 <li>
                     <strong>Город:</strong> @stop.DestinationCity <br />
-                    <strong>Транспорт:</strong> @stop.Transportation <br />
-                    <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                    
+                    @if (i != Model.RouteStops.Count - 1) 
+                    {
+                        <strong>Транспорт:</strong> @stop.Transportation <br />
+                        <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
+                    }
                 </li>
             }
         </ul>
@@ -33,7 +38,17 @@
     {
         <p>Маршрут не содержит городов</p>
     }
+
+    <!-- Информация о создателе маршрута -->
+    <div class="d-flex align-items-center mt-4">
+        <img src="@Model.ApplicationUser.ProfilePictureUrl" class="rounded-circle" alt="Фото пользователя" style="width: 50px; height: 50px; margin-right: 10px;">
+        <div>
+            <p class="mb-0"><strong>@Model.ApplicationUser.FullName</strong></p>
+            <small>Создатель маршрута</small>
+        </div>
+    </div>
 </div>
+
         
 @section Scripts {
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
