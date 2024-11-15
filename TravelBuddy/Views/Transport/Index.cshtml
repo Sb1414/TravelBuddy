@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="~/css/transport.css" asp-append-version="true"/>
+<div class="form-overlay">
+    <form asp-action="Search" method="post" class="form-inline form-container">
+        <div class="form-group mb-2">
+            <label for="from" class="mr-2">Откуда:</label>
+            <input type="text" id="from" name="from" class="form-control" placeholder="Код города" required />
+        </div>
+        <div class="form-group mb-2 ml-3">
+            <label for="to" class="mr-2">Куда:</label>
+            <input type="text" id="to" name="to" class="form-control" placeholder="Код города" required />
+        </div>
+        <div class="form-group mb-2 ml-3">
+            <label for="date" class="mr-2">Дата:</label>
+            <input type="date" id="date" name="date" class="form-control" required />
+        </div>
+        <div class="form-group mb-2 ml-3">
+            <label for="transportType" class="mr-2">Тип транспорта:</label>
+            <select id="transportType" name="transportType" class="form-control">
+                <option value="">Все</option>
+                <option value="plane">Самолёт</option>
+                <option value="bus">Автобус</option>
+                <option value="suburban">Электричка</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mb-2 ml-3">Найти</button>
+    </form>
+</div>

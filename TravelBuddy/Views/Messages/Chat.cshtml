@@ -23,15 +23,7 @@
             <img src="@Model.CurrentUser.ProfilePictureUrl" class="header-photo" />
             <span class="header-name">@Model.RecipientName</span>
         </div>
-
-        @* <div class="messages-container"> *@
-        @*     @foreach (var message in Model.Messages) *@
-        @*     { *@
-        @*         <div class="message @(message.SenderId == User.FindFirst("sub")?.Value ? "sent" : "received")"> *@
-        @*             <p>@message.Content</p> *@
-        @*         </div> *@
-        @*     } *@
-        @* </div> *@
+        
         <div class="messages-container">
             @foreach (var message in Model.Messages)
             {

@@ -1,0 +1,128 @@
+/* Задний полупрозрачный фон */
+.form-overlay {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 800px; /* Максимальная ширина формы */
+    margin: 50px auto; /* Центровка формы */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Легкая тень */
+    color: white; /* Белый текст */
+}
+
+/* Поля формы */
+.form-container label {
+    color: white; /* Белый текст для меток */
+}
+
+.form-container .form-control {
+    background-color: rgba(255, 255, 255, 0.1); /* Полупрозрачное поле */
+    color: white; /* Белый текст */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Светлая рамка */
+}
+
+.form-container .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    outline: none;
+    color: white;
+}
+
+/* Кнопки */
+.form-container .btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.form-container .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Общий стиль для таблицы */
+.table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white; /* Фон таблицы */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Заголовок таблицы */
+.table thead tr {
+    background-color: #007bff; /* Синий фон для заголовка */
+    color: white; /* Белый текст */
+    text-align: left;
+    font-weight: bold;
+}
+
+/* Ячейки таблицы */
+.table th,
+.table td {
+    padding: 12px 15px; /* Отступы внутри ячеек */
+    border: 1px solid #ddd; /* Легкая граница между ячейками */
+}
+
+/* Полосатая раскраска строк */
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Светло-серый для четных строк */
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: #ffffff; /* Белый для нечетных строк */
+}
+
+/* При наведении мыши */
+.table tbody tr:hover {
+    background-color: #f1f1f1; /* Легкий подсвет строки при наведении */
+}
+
+/* Стили для текста */
+.table td {
+    color: #333; /* Темно-серый текст */
+    font-size: 14px;
+}
+
+.table th {
+    font-size: 16px;
+}
+
+/* Стили для заголовка страницы */
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Дополнительные стили для адаптации на мобильных устройствах */
+@media (max-width: 768px) {
+    .table thead {
+        display: none; /* Скрыть заголовок таблицы на маленьких экранах */
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 15px;
+    }
+
+    .table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        text-align: left;
+        font-weight: bold;
+        color: #555;
+    }
+}

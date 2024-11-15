@@ -1,0 +1,36 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Результаты поиска";
+}
+<link rel="stylesheet" href="~/css/transport.css" asp-append-version="true"/>
+<h2>Результаты поиска</h2>
+
+@if (!Model.Any())
+{
+    <p>Транспорт не найден.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Отправление</th>
+            <th>Прибытие</th>
+            <th>Перевозчик</th>
+            <th>Маршрут</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var segment in Model)
+        {
+            <tr>
+                <td>@segment.departure</td>
+                <td>@segment.arrival</td>
+                <td>@segment.thread.carrier.title</td>
+                <td>@segment.from.title - @segment.to.title</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

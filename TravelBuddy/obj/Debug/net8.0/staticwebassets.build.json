@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "2JIoLpXedi1z4djYFj0GtNJQp2wtk3FId40wkFG3sMo=",
+  "Hash": "cQ4LYVb0fRDpAnbZK80CGbT1WrzZke1ozxiffff3FXA=",
   "Source": "TravelBuddy",
   "BasePath": "_content/TravelBuddy",
   "Mode": "Default",
@@ -1269,6 +1269,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\transport.css",
+      "SourceId": "TravelBuddy",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\",
+      "BasePath": "_content/TravelBuddy",
+      "RelativePath": "css/transport.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\transport.css"
     },
     {
       "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\favicon.ico",
