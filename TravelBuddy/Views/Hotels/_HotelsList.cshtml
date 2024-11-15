@@ -1,0 +1,25 @@
+@model List<Hotel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var hotel in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <img src="@hotel.ImageUrl" class="card-img-top" alt="@hotel.Name" />
+                    <div class="card-body">
+                        <h5 class="card-title">@hotel.Name</h5>
+                        <p class="card-text">@hotel.Address</p>
+                        <p class="card-text">Цена: @hotel.Price руб.</p>
+                        <p class="card-text">Рейтинг: @hotel.Rating</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Гостиницы не найдены. Измените параметры фильтра и попробуйте снова.</p>
+}

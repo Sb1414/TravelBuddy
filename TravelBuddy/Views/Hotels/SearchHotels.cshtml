@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Поиск отелей";
+}
+
+<h2>Поиск отелей</h2>
+
+<form asp-action="SearchHotels" method="post">
+    <div class="form-group">
+        <label for="city">Город</label>
+        <input type="text" name="city" id="city" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="minPrice">Минимальная цена</label>
+        <input type="number" name="minPrice" id="minPrice" class="form-control" placeholder="Опционально" />
+    </div>
+    <div class="form-group">
+        <label for="maxPrice">Максимальная цена</label>
+        <input type="number" name="maxPrice" id="maxPrice" class="form-control" placeholder="Опционально" />
+    </div>
+    <button type="submit" class="btn btn-primary">Найти</button>
+</form>
+
+@* @if (!ModelState.IsValid) *@
+@* { *@
+@*     <div class="alert alert-danger"> *@
+@*         <ul> *@
+@*             @foreach (var error in ModelState.Values.SelectMany(v => v.Errors)) *@
+@*             { *@
+@*                 <li>@error.ErrorMessage</li> *@
+@*             } *@
+@*         </ul> *@
+@*     </div> *@
+@* } *@
+
