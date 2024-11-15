@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace TravelBuddy.Models;
 
@@ -8,13 +9,14 @@ public class UserRoute
     [Key]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Поле UserId обязательно.")]
+    [Required]
+    [ForeignKey("ApplicationUser")]
     public string UserId { get; set; }
-    
-    [ForeignKey("UserId")]
+
+    [ValidateNever]
     public virtual ApplicationUser ApplicationUser { get; set; }
 
-    [Required(ErrorMessage = "Поле Название маршрута обязательно.")]
+    [Required]
     [Display(Name = "Название маршрута")]
     public string RouteName { get; set; }
 

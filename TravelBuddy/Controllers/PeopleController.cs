@@ -81,6 +81,19 @@ public class PeopleController : Controller
         return Json(filterValues);
     }
     
+    public async Task<IActionResult> Profile(string id)
+    {
+        if (id == null) return NotFound();
+
+        var user = await _context.Users
+            .Include(u => u.UserRoutes)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null) return NotFound();
+
+        return View(user);
+    }
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendMessage(string recipientId, string content)

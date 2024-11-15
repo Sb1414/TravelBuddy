@@ -27,14 +27,15 @@ public class RouteController : Controller
             .ToListAsync();
         return View(routes);
     }
-
     
+    [Authorize]
     [HttpGet]
     public IActionResult Create()
     {
         return View();
     }
 
+    
     [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -52,6 +53,7 @@ public class RouteController : Controller
         }
 
         route.UserId = currentUser.Id;
+        route.ApplicationUser = currentUser;
         route.RouteName = route.RouteName ?? "Маршрут";
         
         ModelState.Remove("UserId"); 
@@ -59,6 +61,7 @@ public class RouteController : Controller
         {
             ModelState.Remove($"RouteStops[{i}].Route");
         }
+        ModelState.Remove("ApplicationUser");
 
         route.RouteStops.Clear();
         if (ModelState.IsValid)
@@ -75,7 +78,7 @@ public class RouteController : Controller
                     var stop = new RouteStop
                     {
                         RouteId = route.Id,
-                        Route = route, // Привязываем объект Route к каждому RouteStop
+                        Route = route,
                         DestinationCity = stopData.DestinationCity,
                         Transportation = stopData.Transportation,
                         Duration = stopData.Duration,

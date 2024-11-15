@@ -11,14 +11,6 @@
     <link rel="stylesheet" href="~/TravelBuddy.styles.css" asp-append-version="true"/>
 </head>
 <body>
-<!-- Фоновое изображение и фигуры -->
-<div class="background-container">
-    <img src="~/images/back_photo.png" alt="Background Image" class="background-image">
-    <div class="background-shape shape-1 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Login" ? "lightened" : "")"></div>
-    <div class="background-shape shape-2"></div>
-    <div class="background-shape shape-3"></div>
-    <div class="background-shape shape-4 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Profile" ? "lightened" : "")"></div>
-</div>
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
@@ -52,6 +44,14 @@
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
+</div>
+<!-- Фоновое изображение и фигуры -->
+<div class="background-container">
+    <img src="~/images/back_photo.png" alt="Background Image" class="background-image">
+    <div class="background-shape shape-1 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Login" ? "lightened" : "")"></div>
+    <div class="background-shape shape-2"></div>
+    <div class="background-shape shape-3"></div>
+    <div class="background-shape shape-4 @(ViewContext.RouteData.Values["controller"].ToString() == "Account" && ViewContext.RouteData.Values["action"].ToString() == "Profile" ? "lightened" : "")"></div>
 </div>
 
 <footer class="border-top footer text-muted">

@@ -40,13 +40,15 @@
     }
 
     <!-- Информация о создателе маршрута -->
-    <div class="d-flex align-items-center mt-4">
-        <img src="@Model.ApplicationUser.ProfilePictureUrl" class="rounded-circle" alt="Фото пользователя" style="width: 50px; height: 50px; margin-right: 10px;">
-        <div>
-            <p class="mb-0"><strong>@Model.ApplicationUser.FullName</strong></p>
-            <small>Создатель маршрута</small>
+    <a asp-controller="People" asp-action="Profile" asp-route-id="@Model.UserId" class="text-decoration-none">
+        <div class="d-flex align-items-center mt-4">
+            <img src="@Model.ApplicationUser.ProfilePictureUrl" class="rounded-circle" alt="Фото пользователя" style="width: 50px; height: 50px; margin-right: 10px;">
+            <div>
+                <p class="mb-0"><strong>@Model.ApplicationUser.FullName</strong></p>
+                <small>Создатель маршрута</small>
+            </div>
         </div>
-    </div>
+    </a>
 </div>
 
         

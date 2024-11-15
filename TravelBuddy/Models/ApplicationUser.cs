@@ -23,4 +23,5 @@ public class ApplicationUser : IdentityUser
 
     [Display(Name = "Фото профиля")]
     public string? ProfilePictureUrl { get; set; }
+    public virtual ICollection<UserRoute> UserRoutes { get; set; } = new List<UserRoute>();
 }

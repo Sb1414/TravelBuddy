@@ -1,0 +1,52 @@
+@model TravelBuddy.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Профиль пользователя";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Левая часть: карточка с информацией о пользователе -->
+        <div class="col-md-4">
+            <div class="p-4 rounded" style="background-color: rgba(0, 0, 0, 0.1); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <div class="text-center">
+                    <img src="@Model.ProfilePictureUrl" alt="Фото пользователя" class="rounded-circle mb-3" style="width: 120px; height: 120px;">
+                    <h3>@Model.FullName</h3>
+                    <p class="text-muted">@Model.Email</p>
+                </div>
+                <div>
+                    <p><strong>Город:</strong> @Model.City</p>
+                    <p><strong>Возраст:</strong> @(Model.BirthDate.HasValue ? (DateTime.Now.Year - Model.BirthDate.Value.Year).ToString() + " лет" : "Не указан")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая часть: маршруты пользователя -->
+        <div class="col-md-8">
+            <h4>Маршруты пользователя</h4>
+            <div class="row">
+                @if (Model.UserRoutes.Any())
+                {
+                    @foreach (var route in Model.UserRoutes)
+                    {
+                        var firstStop = route.RouteStops.FirstOrDefault();
+                        var lastStop = route.RouteStops.LastOrDefault();
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="card p-3 h-100">
+                                <h5 class="card-title">@route.RouteName</h5>
+                                <p><strong>Отправление:</strong> @firstStop?.DestinationCity</p>
+                                <p><strong>Назначение:</strong> @lastStop?.DestinationCity</p>
+                                <a asp-controller="Route" asp-action="Details" asp-route-id="@route.Id" class="btn btn-primary mt-3">Подробнее</a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>Маршруты не найдены.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
