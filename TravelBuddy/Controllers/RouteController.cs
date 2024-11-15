@@ -43,12 +43,14 @@ public class RouteController : Controller
     {
         if (!User.Identity.IsAuthenticated)
         {
-            return Json(new { success = false, message = "Пользователь не авторизован" });
+            Console.WriteLine("Пользователь не авторизован.");
+            return RedirectToAction("Login", "Account");
         }
 
         var currentUser = await _userManager.GetUserAsync(User);
         if (currentUser == null)
         {
+            Console.WriteLine("Не удалось получить текущего пользователя.");
             return Json(new { success = false, message = "Не удалось получить текущего пользователя" });
         }
 

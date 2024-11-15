@@ -1,0 +1,96 @@
+@using Microsoft.AspNetCore.Identity
+@model ChatViewModel
+@inject UserManager<ApplicationUser> UserManager
+
+<link rel="stylesheet" href="~/css/chat.css" asp-append-version="true"/>
+
+<h2>Чат</h2>
+
+<div class="chat-container">
+    <div class="user-list">
+        @foreach (var conversation in Model.Conversations)
+        {
+            <a href="@Url.Action("Chat", "Messages", new { recipientId = conversation.UserId })" class="user-item">
+                <img src="@conversation.ProfilePictureUrl" class="user-photo" />
+                <span class="user-name">@conversation.FullName</span>
+            </a>
+        }
+    </div>
+
+    <!-- Окно чата -->
+    <div class="chat-window">
+        <div class="chat-header">
+            <img src="@Model.CurrentUser.ProfilePictureUrl" class="header-photo" />
+            <span class="header-name">@Model.RecipientName</span>
+        </div>
+
+        @* <div class="messages-container"> *@
+        @*     @foreach (var message in Model.Messages) *@
+        @*     { *@
+        @*         <div class="message @(message.SenderId == User.FindFirst("sub")?.Value ? "sent" : "received")"> *@
+        @*             <p>@message.Content</p> *@
+        @*         </div> *@
+        @*     } *@
+        @* </div> *@
+        <div class="messages-container">
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message @(message.SenderId == Model.CurrentUser.Id ? "sent" : "received")">
+                    <p>@message.Content</p>
+                </div>
+            }
+        </div>
+
+
+        <div class="message-input">
+            <textarea id="overlayMessageContent" placeholder="Введите сообщение"></textarea>
+            <button type="button" onclick="sendMessage('@Model.RecipientId')">Отправить</button>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+    function sendMessage(recipientId) {
+        // Получение содержимого сообщения
+        const content = document.getElementById('overlayMessageContent').value.trim();
+    
+        // Проверка значения контента
+        console.log("Content: ", content);
+    
+        if (!content) {
+            alert('Сообщение не может быть пустым');
+            return;
+        }
+    
+        // Получение CSRF-токена
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    
+        const formData = new FormData();
+        formData.append('recipientId', recipientId);
+        formData.append('content', content);
+        formData.append('__RequestVerificationToken', token);
+    
+        // Отправка данных с помощью fetch
+        fetch('/People/SendMessage', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                // Очистка поля ввода после отправки
+                document.getElementById('overlayMessageContent').value = '';
+                // Перезагрузка страницы для обновления сообщений
+                location.reload();
+            } else {
+                console.error('Ошибка при отправке сообщения');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
+</script>
+}

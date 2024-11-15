@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\TravelBuddy.bundle.scp.css"
     },
     {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\chat.css",
+      "PackagePath": "staticwebassets\\css\\chat.css"
+    },
+    {
       "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\custom-background.css",
       "PackagePath": "staticwebassets\\css\\custom-background.css"
     },

@@ -47,9 +47,18 @@ public class AccountController : Controller
 
     // GET: /Account/Login
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string returnUrl = null)
     {
-        return View();
+        try
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка в методе Login: {ex.Message}");
+            throw;
+        }
     }
 
     // POST: /Account/Login

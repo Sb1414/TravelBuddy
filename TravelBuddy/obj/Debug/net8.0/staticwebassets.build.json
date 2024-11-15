@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "dcTRUUh6UaNoqZTf9B8qNNLKUUfBU+qiZLRgh/z2gv8=",
+  "Hash": "2JIoLpXedi1z4djYFj0GtNJQp2wtk3FId40wkFG3sMo=",
   "Source": "TravelBuddy",
   "BasePath": "_content/TravelBuddy",
   "Mode": "Default",
@@ -1193,6 +1193,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\TravelBuddy.bundle.scp.css"
+    },
+    {
+      "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\chat.css",
+      "SourceId": "TravelBuddy",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\",
+      "BasePath": "_content/TravelBuddy",
+      "RelativePath": "css/chat.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\chat.css"
     },
     {
       "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\custom-background.css",

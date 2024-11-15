@@ -14,13 +14,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-	.AddCookie(options =>
-	{
-		options.LoginPath = "/Account/Login";
-		options.AccessDeniedPath = "/Account/AccessDenied";
-	});
-
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

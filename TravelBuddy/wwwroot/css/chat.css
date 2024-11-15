@@ -1,0 +1,133 @@
+.chat-container {
+    display: flex;
+    background-color: #f9f9f9;
+    padding: 20px;
+    height: 80vh;
+    box-sizing: border-box;
+}
+
+.user-list {
+    width: 25%;
+    border-right: 1px solid #ccc;
+    background-color: #fff;
+    padding: 10px;
+}
+
+.user-photo {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.chat-window {
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff; /* Светлый фон для окна чата */
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.header-photo {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.header-name {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+/* Сообщения, отправленные текущим пользователем */
+.sent {
+    align-self: flex-end; /* Прижимаем к правой стороне */
+    background-color: #007bff; /* Цвет кнопки "Отправить" */
+    color: #fff; /* Белый текст */
+    padding: 10px;
+    border-radius: 20px;
+    max-width: 70%; /* Максимальная ширина сообщения */
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.messages-container {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Сообщения, полученные от собеседника */
+.received {
+    align-self: flex-start; /* Прижимаем к левой стороне */
+    background-color: #f1f1f1; /* Светло-серый фон */
+    color: #000; /* Черный текст */
+    padding: 10px;
+    border-radius: 20px;
+    max-width: 70%; /* Максимальная ширина сообщения */
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.message-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+}
+
+textarea {
+    flex-grow: 1;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    text-decoration: none; /* Убираем подчеркивание */
+    color: inherit; /* Наследуем цвет текста */
+}
+
+.user-item:hover {
+    background-color: #f0f0f0; /* Подсветка при наведении */
+}

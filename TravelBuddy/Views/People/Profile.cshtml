@@ -18,6 +18,9 @@
                     <p><strong>Город:</strong> @Model.City</p>
                     <p><strong>Возраст:</strong> @(Model.BirthDate.HasValue ? (DateTime.Now.Year - Model.BirthDate.Value.Year).ToString() + " лет" : "Не указан")</p>
                 </div>
+                <div class="text-center mt-3">
+                    <a asp-controller="Messages" asp-action="Chat" asp-route-recipientId="@Model.Id" class="btn btn-primary">Написать сообщение</a>
+                </div>
             </div>
         </div>
 

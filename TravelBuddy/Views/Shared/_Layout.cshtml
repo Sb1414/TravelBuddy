@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -33,6 +37,12 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="People" asp-action="Peoples">Люди</a>
                     </li>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Messages" asp-action="Index">Диалоги</a>
+                        </li>
+                    }
 
                 </ul>
                 <partial name="_LoginPartial"/>

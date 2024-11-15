@@ -1,0 +1,25 @@
+@model List<ConversationViewModel>
+
+<link rel="stylesheet" href="~/css/chat.css" asp-append-version="true"/>
+
+<div class="chat-container">
+    <!-- Список пользователей -->
+    <div class="user-list">
+        <h4>Диалоги</h4>
+        @foreach (var conversation in Model)
+        {
+            <a href="@Url.Action("Chat", "Messages", new { recipientId = conversation.UserId })" class="user-item">
+                <img src="@conversation.ProfilePictureUrl" class="user-photo" />
+                <span class="user-name">@conversation.FullName</span>
+                <p class="text-muted mb-0">@conversation.LastMessage</p>
+                <small>@conversation.SentAt.ToString("g")</small>
+            </a>
+        }
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-header">
+            <h4>Выберите диалог</h4>
+        </div>
+    </div>
+</div>
