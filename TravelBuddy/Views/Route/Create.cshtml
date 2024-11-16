@@ -3,52 +3,86 @@
     ViewData["Title"] = "Создать маршрут";
 }
 
-<h2>Создать маршрут</h2>
+<h2 class="header-title">Создать маршрут</h2>
 
-<form asp-action="Create" method="post" class="form-row">
-    @Html.AntiForgeryToken()
-    
-    <div class="form-group">
-        <label asp-for="RouteName"></label>
-        <input asp-for="RouteName" class="form-control" />
-    </div>
+<div class="route-form-container">
+    <form asp-action="Create" method="post" class="form-row">
+        @Html.AntiForgeryToken()
+        
+        <div class="form-group">
+            <label asp-for="RouteName"></label>
+            <input asp-for="RouteName" class="form-control" />
+        </div>
 
-   <div id="stops-container">
-       <!-- Контейнер для остановок маршрута -->
-       <h4>Остановки</h4>
-       <div class="stop-fields">
-           <label>Город назначения</label>
-           <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
-   
-           <!-- Дополнительные поля, которые станут видимыми после нажатия на + -->
-           <div class="additional-fields mt-2" style="display: none;">
-               <label>Средство передвижения</label>
-               <select name="RouteStops[0].Transportation" class="form-control">
-                   <option value="Машина">Машина</option>
-                   <option value="Самолет">Самолет</option>
-                   <option value="Поезд">Поезд</option>
-                   <option value="Автобус">Автобус</option>
-               </select>
-   
-               <div class="form-inline mt-2">
-                   <div style="flex: 1;">
-                       <label>Время пребывания</label>
-                       <input type="number" name="RouteStops[0].Duration" class="form-control" style="width: 100%;" />
-                   </div>
-                   <div style="flex: 1;">
-                       <label>Тип времени</label>
-                       <select name="RouteStops[0].DurationType" class="form-control" style="width: 100%;">
-                           <option value="Дни">Дни</option>
-                           <option value="Часы">Часы</option>
-                       </select>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </div>
-   <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
-   <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
-</form>
+        <div id="stops-container">
+            <!-- Контейнер для остановок маршрута -->
+            <h4 class="stop-header">Остановки</h4>
+            <div class="stop-fields">
+                <label>Город назначения</label>
+                <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
+        
+                <!-- Дополнительные поля, которые станут видимыми после нажатия на + -->
+                <div class="additional-fields mt-2" style="display: none;">
+                    <label>Средство передвижения</label>
+                    <select name="RouteStops[0].Transportation" class="form-control">
+                        <option value="Машина">Машина</option>
+                        <option value="Самолет">Самолет</option>
+                        <option value="Поезд">Поезд</option>
+                        <option value="Автобус">Автобус</option>
+                    </select>
+        
+                    <div class="form-inline mt-2">
+                        <div style="flex: 1;">
+                            <label>Время пребывания</label>
+                            <input type="number" name="RouteStops[0].Duration" class="form-control" style="width: 100%;" />
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Тип времени</label>
+                            <select name="RouteStops[0].DurationType" class="form-control" style="width: 100%;">
+                                <option value="Дни">Дни</option>
+                                <option value="Часы">Часы</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
+        <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
+    </form>
+</div>
+
+<style>
+    body {
+        background-color: #f0f0f0;
+    }
+
+    .route-form-container {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-title,
+    .stop-header {
+        color: #fff;
+    }
+
+    h2,
+    h4 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        color: #fff;
+    }
+
+    .btn {
+        margin: 5px;
+    }
+</style>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

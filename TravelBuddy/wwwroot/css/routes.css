@@ -1,0 +1,95 @@
+/* Основной фон для страницы */
+body {
+    background-color: #f9f9f9;
+    color: #ffffff;
+}
+
+/* Заголовки */
+.header-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+    font-weight: bold;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Кнопка создания маршрута */
+.create-route-btn {
+    display: block;
+    margin: 0 auto;
+    background-color: #007bff;
+    border: none;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.create-route-btn:hover {
+    transform: scale(1.05);
+    background-color: #0056b3;
+}
+
+/* Карточки маршрутов */
+.route-card {
+    background-color: rgba(195, 195, 195, 0.4); /* Цвет с прозрачностью */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #ffffff;
+}
+
+.route-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Заголовки маршрутов */
+.route-title, .stops-title {
+    color: #ffffff;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.route-title:hover,
+.stops-title:hover {
+    transform: scale(1.05);
+    color: #000000;
+}
+
+/* Текст и элементы списка */
+.stops-list {
+    padding-left: 20px;
+    list-style: none;
+}
+
+.stops-list li {
+    margin-bottom: 10px;
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+.stops-list li:hover {
+    color: #000000;
+}
+
+/* Анимация для подсвеченного текста */
+.highlight {
+    font-weight: bold;
+    color: #ffffff;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.highlight:hover {
+    color: #000000;
+    transform: scale(1.1);
+}
+
+/* Анимация заголовков */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

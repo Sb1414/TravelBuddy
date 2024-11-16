@@ -69,7 +69,7 @@ $(function () {
                             <label>Средство передвижения</label>
                             <select name="RouteStops[${stopCount}].Transportation" class="form-control">
                                 <option value="">Не выбрано</option>
-                                <option value="Машина">Машина</option>
+                                <option value="Электричка">Электричка</option>
                                 <option value="Самолет">Самолет</option>
                                 <option value="Поезд">Поезд</option>
                                 <option value="Автобус">Автобус</option>
@@ -121,4 +121,61 @@ $(function () {
             }
         });
     });
+});
+
+$(document).on("change", ".transportation-select", function () {
+    const transportType = $(this).val();
+    const stopIndex = $(this).closest(".stop-fields").find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
+    const destination = routeStopsData[stopIndex]?.DestinationCity;
+
+    if (transportType === "Электричка" && destination) {
+        const trainTableContainer = $(this).closest(".stop-fields").find(".train-table-container");
+        trainTableContainer.show();
+
+        // Загрузка рейсов через API
+        fetch(`/api/trains?toCity=${destination}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const trainOptions = trainTableContainer.find(".train-options");
+                trainOptions.empty();
+
+                data.forEach((train) => {
+                    trainOptions.append(`
+                        <tr>
+                            <td>${train.departure_time}</td>
+                            <td>${train.arrival_time}</td>
+                            <td>${train.title}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary select-train" 
+                                    data-train-id="${train.id}" 
+                                    data-train-title="${train.title}"
+                                    data-departure-time="${train.departure_time}"
+                                    data-arrival-time="${train.arrival_time}">
+                                    Выбрать
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            })
+            .catch((error) => console.error("Ошибка загрузки рейсов:", error));
+    }
+});
+
+$(document).on("click", ".select-train", function () {
+    const trainId = $(this).data("train-id");
+    const trainTitle = $(this).data("train-title");
+    const departureTime = $(this).data("departure-time");
+    const arrivalTime = $(this).data("arrival-time");
+
+    const stopIndex = $(this).closest(".stop-fields").find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
+    routeStopsData[stopIndex] = {
+        ...routeStopsData[stopIndex],
+        SelectedTrainId: trainId,
+        SelectedTrainTitle: trainTitle,
+        SelectedDepartureTime: departureTime,
+        SelectedArrivalTime: arrivalTime
+    };
+
+    alert(`Рейс ${trainTitle} выбран.`);
 });

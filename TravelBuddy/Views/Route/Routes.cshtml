@@ -3,8 +3,10 @@
     ViewData["Title"] = "Маршруты";
 }
 
-<h2>Маршруты</h2>
-<a class="btn btn-primary mb-3" asp-action="Create">Создать маршрут</a>
+<link rel="stylesheet" href="~/css/routes.css" asp-append-version="true"/>
+
+<h2 class="header-title">Маршруты</h2>
+<a class="btn btn-primary mb-3 create-route-btn" asp-action="Create">Создать маршрут</a>
 
 <div class="row">
     @foreach (var route in Model)
@@ -14,20 +16,20 @@
         var stopsList = route.RouteStops.ToList(); // в List для поддержки индексации
 
         <div class="col-md-4 mb-3">
-            <a asp-action="Details" asp-route-id="@route.Id" class="text-decoration-none text-dark">
-                <div class="card p-3">
-                    <h5>Название маршрута: @route.RouteName</h5>
+            <a asp-action="Details" asp-route-id="@route.Id" class="text-decoration-none">
+                <div class="card route-card p-3">
+                    <h5 class="route-title">Название маршрута: @route.RouteName</h5>
                     @if (firstStop != null && lastStop != null)
                     {
-                        <p>Отправление: @firstStop.DestinationCity</p>
-                        <p>Назначение: @lastStop.DestinationCity</p>
+                        <p>Отправление: <span class="highlight">@firstStop.DestinationCity</span></p>
+                        <p>Назначение: <span class="highlight">@lastStop.DestinationCity</span></p>
                     }
                     else
                     {
-                        <p>Маршрут не содержит городов</p>
+                        <p class="text-muted">Маршрут не содержит городов</p>
                     }
-                    <h6>Остановки:</h6>
-                    <ul>
+                    <h6 class="stops-title">Остановки:</h6>
+                    <ul class="stops-list">
                         @for (int i = 0; i < stopsList.Count; i++)
                         {
                             var stop = stopsList[i];

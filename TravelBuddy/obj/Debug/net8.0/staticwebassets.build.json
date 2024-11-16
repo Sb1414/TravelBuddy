@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "cQ4LYVb0fRDpAnbZK80CGbT1WrzZke1ozxiffff3FXA=",
+  "Hash": "MTm+vctH4A9yirbGOuBckSkt8pSPhomHpWlGbsSocxY=",
   "Source": "TravelBuddy",
   "BasePath": "_content/TravelBuddy",
   "Mode": "Default",
@@ -1250,6 +1250,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\custom.css"
+    },
+    {
+      "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\routes.css",
+      "SourceId": "TravelBuddy",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\",
+      "BasePath": "_content/TravelBuddy",
+      "RelativePath": "css/routes.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\routes.css"
     },
     {
       "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\css\\site.css",
