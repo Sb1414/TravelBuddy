@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
@@ -19,6 +20,8 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Messages\Chat.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Messages\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Hotels\HotelResults.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Hotels\Search.cshtml" />
   </ItemGroup>
 
 </Project>

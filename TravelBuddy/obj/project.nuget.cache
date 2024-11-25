@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "5jDMrl3We3XFc1VU7rsW3BfV8k9TVFlGWdxiUShTbX34xBP67qSDp1iiy3984ZsvKiu04bTukDixcoi/ksZFxA==",
+  "dgSpecHash": "hr1vN7yfvZsKKxerq5uqF/r3hazUPAZ20Pr+R3IVJwTX/+/Lx7bXY91eFzsvV44rBRl7A43b+wG8YteTF5U4IQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\TravelBuddy.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\csvhelper\\33.0.1\\csvhelper.33.0.1.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\8.0.8\\microsoft.aspnetcore.cryptography.internal.8.0.8.nupkg.sha512",
     "C:\\Users\\Sabina.Kalkamanova\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\8.0.8\\microsoft.aspnetcore.cryptography.keyderivation.8.0.8.nupkg.sha512",

@@ -15,7 +15,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<HotelService>();
+builder.Services.AddHttpClient<HotelService>();
 builder.Services.AddSingleton<YandexTransportService>();
 
 var app = builder.Build();

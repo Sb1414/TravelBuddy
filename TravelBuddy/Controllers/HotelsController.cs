@@ -3,6 +3,7 @@ using TravelBuddy.Models;
 
 namespace TravelBuddy.Controllers;
 
+
 public class HotelsController : Controller
 {
     private readonly HotelService _hotelService;
@@ -13,21 +14,15 @@ public class HotelsController : Controller
     }
 
     [HttpGet]
-    public IActionResult SearchHotels()
+    public IActionResult Search()
     {
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> SearchHotels(string city, int? minPrice, int? maxPrice)
+    public async Task<IActionResult> Search(string city, string checkIn, string checkOut, int adults = 1, int children = 0)
     {
-        if (string.IsNullOrWhiteSpace(city))
-        {
-            ModelState.AddModelError("City", "Введите название города.");
-            return View();
-        }
-
-        var hotels = await _hotelService.GetHotelsAsync(city, minPrice, maxPrice);
-        return View("HotelResults", hotels); // Отображаем результаты в представлении HotelResults
+        var hotels = await _hotelService.SearchHotelsAsync(city, checkIn, checkOut, adults, children);
+        return View("Results", hotels);
     }
 }
