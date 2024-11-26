@@ -24,4 +24,10 @@
     <_ContentIncludedByDefault Remove="Views\Hotels\Search.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\data\cityCodes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

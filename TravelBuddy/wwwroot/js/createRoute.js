@@ -1,6 +1,27 @@
 $(function () {
     let stopCount = 1;
     const routeStopsData = {}; // объект для хранения данных остановок (включая координаты)
+    let cityCodes = {};
+
+    // Загрузка JSON-файла с кодами городов
+    function loadCityCodes() {
+        $.getJSON('/data/cityCodes.json', function (data) {
+            cityCodes = data;
+            console.log("Коды городов загружены:", cityCodes);
+        }).fail(function () {
+            alert("Не удалось загрузить коды городов.");
+        });
+    }
+
+    // Получение кода города по названию
+    function getCityCode(cityName) {
+        return cityCodes[cityName] || null;
+    }
+
+    // Загрузка кодов при запуске
+    $(document).ready(function () {
+        loadCityCodes();
+    });
 
     // функция для автозаполнения городов и получения координат
     $(document).on("focus", ".city-autocomplete", function () {
@@ -17,9 +38,10 @@ $(function () {
                     },
                     success: function (data) {
                         response($.map(data, function (item) {
+                            const localName = item.local_names && item.local_names.ru ? item.local_names.ru : item.name;
                             return {
-                                label: item.name + (item.state ? ", " + item.state : "") + ", " + item.country,
-                                value: item.name,
+                                label: localName + (item.state ? ", " + item.state : "") + ", " + item.country,
+                                value: localName,
                                 latitude: item.lat,
                                 longitude: item.lon
                             };
@@ -42,140 +64,153 @@ $(function () {
         });
     });
 
-    // обновление routeStopsData только если выбраны значения
-    $(document).on("change", ".stop-fields select, .stop-fields input[type='number']", function () {
-        const stopIndex = $(this).closest('.stop-fields').find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
-        if (routeStopsData[stopIndex]) {
-            routeStopsData[stopIndex].Transportation = $(this).closest('.stop-fields').find('select[name*="Transportation"]').val() || null;
-            routeStopsData[stopIndex].Duration = $(this).closest('.stop-fields').find('input[name*="Duration"]').val() || null;
-            routeStopsData[stopIndex].DurationType = $(this).closest('.stop-fields').find('select[name*="DurationType"]').val() || null;
+    // Добавление новой остановки
+    $('#add-stop-btn').on('click', function () {
+        stopCount++;
+        $('#stops-container').append(`
+        <div class="stop-fields mt-3">
+            <label>Город назначения</label>
+            <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete mb-2" />
+            <button type="button" class="btn btn-primary choose-transport-btn">Выбрать средство передвижения</button>
+            <button type="button" class="btn btn-primary choose-hotel-btn">Выбрать отель</button>
+        </div>
+        `);
+    });
+
+    // Открытие модального окна транспорта
+    $(document).on('click', '.choose-transport-btn', function () {
+        const stopFields = $(this).closest('.stop-fields');
+        const previousStopFields = stopFields.prev('.stop-fields');
+
+        // Город отправления: либо из #initialCity, либо из предыдущей остановки
+        const fromCity = previousStopFields.length
+            ? previousStopFields.find('input[name*="DestinationCity"]').val()
+            : $('#initialCity').val();
+
+        // Город назначения — текущая остановка
+        const toCity = stopFields.find('input[name*="DestinationCity"]').val();
+        
+        console.log("toCity: " + fromCity);
+        console.log("toCity: " + toCity);
+        if (!fromCity || !toCity) {
+            alert('Заполните города отправления и назначения.');
+            return;
+        }
+
+        $('#transportModalInfo').text(`Откуда: ${fromCity}, Куда: ${toCity}`);
+        $('#transportModal').data('from', fromCity).data('to', toCity).show();
+    });
+
+    // Открытие модального окна отелей
+    $(document).on('click', '.choose-hotel-btn', function () {
+        const stopIndex = $(this).closest('.stop-fields').index();
+        $('#hotelModalInfo').text(`Для остановки ${stopIndex + 1}`);
+        $('#hotelModal').show();
+    });
+
+    // Закрытие модальных окон
+    $('.modal').on('click', function (e) {
+        if ($(e.target).is('.modal')) {
+            $(this).hide();
         }
     });
 
-    // добавление новой остановки при нажатии на +
-    document.getElementById('add-stop-btn').addEventListener('click', function () {
-        // делаем видимыми дополнительные поля для предыдущей остановки
-        $('#stops-container .stop-fields:last .additional-fields').show();
+    // Поиск транспорта через API
+    $('#searchTransportBtn').on('click', function () {
+        const modal = $('#transportModal');
+        const fromCity = modal.data('from');
+        const toCity = modal.data('to');
+        const date = $('#transportDate').val();
+        const transportType = $('#transportType').val();
 
-        // добавляем новый блок с только полем города назначения
-        const stopsContainer = document.getElementById('stops-container');
-        const stopHtml = `
-                    <div class="stop-fields mt-3">
-                        <label>Город назначения</label>
-                        <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete" />
-        
-                        <!-- Поля, которые станут видимыми только после нажатия на + -->
-                        <div class="additional-fields mt-2" style="display: none;">
-                            <label>Средство передвижения</label>
-                            <select name="RouteStops[${stopCount}].Transportation" class="form-control">
-                                <option value="">Не выбрано</option>
-                                <option value="Электричка">Электричка</option>
-                                <option value="Самолет">Самолет</option>
-                                <option value="Поезд">Поезд</option>
-                                <option value="Автобус">Автобус</option>
-                            </select>
-        
-                            <div class="form-inline mt-2">
-                                <div style="flex: 1;">
-                                    <label>Время пребывания</label>
-                                    <input type="number" name="RouteStops[${stopCount}].Duration" class="form-control" style="width: 100%;" />
-                                </div>
-                                <div style="flex: 1;">
-                                    <label>Тип времени</label>
-                                    <select name="RouteStops[${stopCount}].DurationType" class="form-control" style="width: 100%;">
-                                        <option value="">Не выбрано</option>
-                                        <option value="Дни">Дни</option>
-                                        <option value="Часы">Часы</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-        stopsContainer.insertAdjacentHTML('beforeend', stopHtml);
-        stopCount++;
-    });
+        const fromCode = getCityCode(fromCity);
+        const toCode = getCityCode(toCity);
 
-    // Передача данных остановок (включая координаты) при отправке формы
-    $('form').on('submit', function (e) {
-        e.preventDefault(); // Отключаем стандартное поведение отправки формы
+        if (!fromCode || !toCode) {
+            alert('Коды для городов не найдены.');
+            return;
+        }
 
+        if (!date) {
+            alert('Введите дату отправления.');
+            return;
+        }
+
+        // Отправка запроса на сервер
         $.ajax({
-            url: $(this).attr('action'),
-            type: $(this).attr('method'),
-            data: $(this).serialize() + "&routeStopsData=" + encodeURIComponent(JSON.stringify(routeStopsData)),
-            success: function (response) {
-                if (response.success) {
-                    alert(response.message); // Выводим сообщение об успешном сохранении
-                    window.location.href = "/Route/Routes"; // Перенаправляем на страницу с маршрутами
-                } else {
-                    console.error("Ошибка при сохранении маршрута:", response.message);
-                    if (response.errors) {
-                        console.log("Ошибки валидации:", response.errors);
-                    }
-                    alert("Произошла ошибка: " + response.message);
+            url: `/Transport/Search`,
+            method: 'POST',
+            data: { from: fromCode, to: toCode, date: date, transportType: transportType },
+            success: function (data) {
+                if (data.length === 0) {
+                    alert('Транспорт не найден.');
+                    return;
                 }
+
+                $('#transportOptions tbody').empty();
+                data.forEach(segment => {
+                    $('#transportOptions tbody').append(`
+                    <tr>
+                        <td>${segment.thread.carrier.title}</td>
+                        <td>${segment.departure}</td>
+                        <td>${segment.arrival}</td>
+                        <td>
+                            <button class="btn btn-primary select-transport-btn" 
+                                data-thread-id="${segment.thread.uid}" 
+                                data-from="${segment.from.title}" 
+                                data-to="${segment.to.title}" 
+                                data-departure="${segment.departure}" 
+                                data-arrival="${segment.arrival}">
+                                Выбрать
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                });
+
+                $('#transportOptions').show();
             },
-            error: function (xhr, status, error) {
-                console.error("Произошла ошибка при сохранении маршрута:", error);
-                alert("Произошла ошибка при создании маршрута.");
+            error: function () {
+                alert('Ошибка при получении данных транспорта.');
             }
         });
     });
-});
 
-$(document).on("change", ".transportation-select", function () {
-    const transportType = $(this).val();
-    const stopIndex = $(this).closest(".stop-fields").find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
-    const destination = routeStopsData[stopIndex]?.DestinationCity;
+    // Выбор конкретного транспорта
+    $(document).on('click', '.select-transport-btn', function () {
+        const selectedTransport = {
+            threadId: $(this).data('thread-id'),
+            from: $(this).data('from'),
+            to: $(this).data('to'),
+            departure: $(this).data('departure'),
+            arrival: $(this).data('arrival')
+        };
 
-    if (transportType === "Электричка" && destination) {
-        const trainTableContainer = $(this).closest(".stop-fields").find(".train-table-container");
-        trainTableContainer.show();
+        $('#confirmTransportBtn').data('selected-transport', selectedTransport).prop('disabled', false);
+    });
 
-        // Загрузка рейсов через API
-        fetch(`/api/trains?toCity=${destination}`)
-            .then((response) => response.json())
-            .then((data) => {
-                const trainOptions = trainTableContainer.find(".train-options");
-                trainOptions.empty();
+    // Подтверждение выбора транспорта
+    $('#confirmTransportBtn').on('click', function () {
+        const transport = $(this).data('selected-transport');
+        alert(`Выбран транспорт: ${transport.threadId} (${transport.from} - ${transport.to})`);
+        $('#transportModal').hide();
+    });
+    
+    // Поиск отелей
+    $('#searchHotelBtn').on('click', function () {
+        // Имитация поиска отелей
+        $('#hotelOptions').show().find('tbody').html(`
+            <tr>
+                <td>Гостиница 1</td>
+                <td>Адрес 1</td>
+                <td>3000 руб.</td>
+                <td><button class="btn btn-primary select-hotel-btn">Выбрать</button></td>
+            </tr>
+        `);
+    });
 
-                data.forEach((train) => {
-                    trainOptions.append(`
-                        <tr>
-                            <td>${train.departure_time}</td>
-                            <td>${train.arrival_time}</td>
-                            <td>${train.title}</td>
-                            <td>
-                                <button type="button" class="btn btn-primary select-train" 
-                                    data-train-id="${train.id}" 
-                                    data-train-title="${train.title}"
-                                    data-departure-time="${train.departure_time}"
-                                    data-arrival-time="${train.arrival_time}">
-                                    Выбрать
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                });
-            })
-            .catch((error) => console.error("Ошибка загрузки рейсов:", error));
-    }
-});
-
-$(document).on("click", ".select-train", function () {
-    const trainId = $(this).data("train-id");
-    const trainTitle = $(this).data("train-title");
-    const departureTime = $(this).data("departure-time");
-    const arrivalTime = $(this).data("arrival-time");
-
-    const stopIndex = $(this).closest(".stop-fields").find('input[name*="DestinationCity"]').attr("name").match(/\d+/)[0];
-    routeStopsData[stopIndex] = {
-        ...routeStopsData[stopIndex],
-        SelectedTrainId: trainId,
-        SelectedTrainTitle: trainTitle,
-        SelectedDepartureTime: departureTime,
-        SelectedArrivalTime: arrivalTime
-    };
-
-    alert(`Рейс ${trainTitle} выбран.`);
+    // Выбор отеля
+    $(document).on('click', '.select-hotel-btn', function () {
+        $('#confirmHotelBtn').prop('disabled', false);
+    });
 });

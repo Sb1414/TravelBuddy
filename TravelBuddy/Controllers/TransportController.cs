@@ -29,13 +29,12 @@ public class TransportController : Controller
 
         var result = await _transportService.GetTransportOptions(from, to, date, transportType);
 
-        if (result == null || result.segments == null)
+        if (result?.segments == null)
         {
-            ViewBag.ErrorMessage = "Транспорт не найден. Проверьте введённые данные.";
-            return View("Index");
+            return Json(new List<object>()); // пустой массив, если ничего не найдено
         }
 
-        return View("Results", result.segments);
+        return Json(result.segments);
     }
 
 }
