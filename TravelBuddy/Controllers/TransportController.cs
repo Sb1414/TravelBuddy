@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TravelBuddy.Models;
 
 namespace TravelBuddy.Controllers;
@@ -19,22 +20,28 @@ public class TransportController : Controller
     }
 
     [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> Search(string from, string to, string date, string transportType)
     {
         if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to) || string.IsNullOrWhiteSpace(date))
         {
-            ViewBag.ErrorMessage = "Пожалуйста, заполните все поля.";
-            return View("Index");
+            return BadRequest("Пожалуйста, заполните все поля.");
         }
 
         var result = await _transportService.GetTransportOptions(from, to, date, transportType);
 
         if (result?.segments == null)
         {
-            return Json(new List<object>()); // пустой массив, если ничего не найдено
+            return Ok(new List<object>()); // пустой массив, если ничего не найдено
         }
 
-        return Json(result.segments);
+        // Логирование для отладки
+        foreach (var segment in result.segments)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(segment));
+        }
+
+        return Ok(result.segments);
     }
 
 }

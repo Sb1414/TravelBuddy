@@ -142,30 +142,58 @@ $(function () {
             method: 'POST',
             data: { from: fromCode, to: toCode, date: date, transportType: transportType },
             success: function (data) {
+                console.log("Полученные данные:", data);
+
+                // Проверка типа данных
+                if (typeof data === 'string') {
+                    try {
+                        data = JSON.parse(data);
+                        console.log("Парсинг JSON прошёл успешно:", data);
+                    } catch (e) {
+                        alert("Ошибка при парсинге JSON: " + e.message);
+                        return;
+                    }
+                }
+
+                if (!Array.isArray(data)) {
+                    alert("Неверный формат данных от API");
+                    return;
+                }
+
+                $('#transportOptions tbody').empty();
+
                 if (data.length === 0) {
                     alert('Транспорт не найден.');
                     return;
                 }
 
-                $('#transportOptions tbody').empty();
                 data.forEach(segment => {
+                    console.log("Сегмент:", JSON.stringify(segment, null, 2));
+
+                    const carrierTitle = segment?.thread?.carrier?.title || 'Неизвестный перевозчик';
+                    const departureTime = segment?.departure ? new Date(segment.departure).toLocaleString('ru-RU') : 'Неизвестно';
+                    const arrivalTime = segment?.arrival ? new Date(segment.arrival).toLocaleString('ru-RU') : 'Неизвестно';
+                    const fromTitle = segment?.from?.title || 'Неизвестно';
+                    const toTitle = segment?.to?.title || 'Неизвестно';
+
                     $('#transportOptions tbody').append(`
-                    <tr>
-                        <td>${segment.thread.carrier.title}</td>
-                        <td>${segment.departure}</td>
-                        <td>${segment.arrival}</td>
-                        <td>
-                            <button class="btn btn-primary select-transport-btn" 
-                                data-thread-id="${segment.thread.uid}" 
-                                data-from="${segment.from.title}" 
-                                data-to="${segment.to.title}" 
-                                data-departure="${segment.departure}" 
-                                data-arrival="${segment.arrival}">
-                                Выбрать
-                            </button>
-                        </td>
-                    </tr>
-                `);
+                        <tr>
+                            <td>${carrierTitle}</td>
+                            <td>${departureTime}</td>
+                            <td>${arrivalTime}</td>
+                            <td>${fromTitle} - ${toTitle}</td>
+                            <td>
+                                <button class="btn btn-primary select-transport-btn" 
+                                    data-thread-id="${segment?.thread?.uid || ''}" 
+                                    data-from="${fromTitle}" 
+                                    data-to="${toTitle}" 
+                                    data-departure="${departureTime}" 
+                                    data-arrival="${arrivalTime}">
+                                    Выбрать
+                                </button>
+                            </td>
+                        </tr>
+                    `);
                 });
 
                 $('#transportOptions').show();
