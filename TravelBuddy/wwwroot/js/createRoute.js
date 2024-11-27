@@ -1,5 +1,5 @@
 $(function () {
-    let stopCount = 1;
+    let stopCount = 1; // Начинаем с 1, так как 0 уже используется для initialCity
     const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты, транспорт и отель)
     let cityCodes = {};
     let currentStop = null; // Текущая остановка для выбора транспорта или отеля
@@ -52,7 +52,8 @@ $(function () {
             },
             minLength: 2,
             select: function (event, ui) {
-                const stopIndex = $(this).attr("name").match(/\d+/)[0];
+                const stopElement = $(this).closest('.stop-fields');
+                const stopIndex = stopElement.data('stop-index');
                 if (!routeStopsData[stopIndex]) {
                     routeStopsData[stopIndex] = {
                         DestinationCity: ui.item.value,
@@ -73,42 +74,45 @@ $(function () {
 
     // Добавление новой остановки
     $('#add-stop-btn').on('click', function () {
+        const newStopIndex = stopCount;
         stopCount++;
         $('#stops-container').append(`
-        <div class="stop-fields mt-3">
-            <label>Город назначения</label>
-            <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete mb-2" />
-            <button type="button" class="btn btn-primary choose-transport-btn">Выбрать средство передвижения</button>
-            <button type="button" class="btn btn-primary choose-hotel-btn">Выбрать отель</button>
-            <div class="selected-transport mt-2" style="display: none;">
-                <strong>Выбранный транспорт:</strong> <span class="transport-info"></span>
+            <div class="stop-fields mt-3" data-stop-index="${newStopIndex}">
+                <label>Город назначения</label>
+                <input type="text" name="RouteStops[${newStopIndex}].DestinationCity" class="form-control city-autocomplete mb-2" />
+                <button type="button" class="btn btn-primary choose-transport-btn">Выбрать средство передвижения</button>
+                <button type="button" class="btn btn-primary choose-hotel-btn">Выбрать отель</button>
+                <div class="selected-info">
+                    <div class="selected-transport mt-2" style="display: none;">
+                        <strong>Выбранный транспорт:</strong> <span class="transport-info"></span>
+                    </div>
+                    <div class="selected-hotel mt-2" style="display: none;">
+                        <strong>Выбранный отель:</strong> <span class="hotel-info"></span>
+                    </div>
+                </div>
             </div>
-            <div class="selected-hotel mt-2" style="display: none;">
-                <strong>Выбранный отель:</strong> <span class="hotel-info"></span>
-            </div>
-        </div>
         `);
     });
-
-    // Функция для получения индекса остановки
-    function getStopIndex(stopElement) {
-        // Индекс начинается с 0 для initialCity
-        return stopElement.index();
-    }
 
     // Открытие модального окна транспорта
     $(document).on('click', '.choose-transport-btn', function () {
         currentStop = $(this).closest('.stop-fields');
-        const stopIndex = getStopIndex(currentStop);
+        const stopIndex = currentStop.data('stop-index');
 
-        const previousStopFields = currentStop.prev('.stop-fields');
+        const previousStopFields = currentStop.prevAll('.stop-fields').first();
+        let fromCity;
 
-        // Город отправления: либо из #initialCity, либо из предыдущей остановки
-        const fromCity = previousStopFields.length
-            ? previousStopFields.find('input[name*="DestinationCity"]').val()
-            : $('#initialCity').val();
+        if (previousStopFields.length) {
+            const previousStopIndex = previousStopFields.data('stop-index');
+            if (previousStopIndex === 0) {
+                fromCity = previousStopFields.find('input[name="RouteStops[0].FromCity"]').val();
+            } else {
+                fromCity = previousStopFields.find('input[name*="DestinationCity"]').val();
+            }
+        } else {
+            fromCity = $('#initialCity').val();
+        }
 
-        // Город назначения — текущая остановка
         const toCity = currentStop.find('input[name*="DestinationCity"]').val();
 
         console.log("fromCity: " + fromCity);
@@ -135,7 +139,7 @@ $(function () {
     // Открытие модального окна отелей
     $(document).on('click', '.choose-hotel-btn', function () {
         currentStop = $(this).closest('.stop-fields');
-        const stopIndex = getStopIndex(currentStop);
+        const stopIndex = currentStop.data('stop-index');
 
         // Проверка, выбран ли транспорт для этой остановки
         if (!routeStopsData[stopIndex] || !routeStopsData[stopIndex].Transportation) {
@@ -310,18 +314,21 @@ $(function () {
 
         // Формирование строки с информацией о транспорте
         const transportInfo = `
-            <div class="transport-details">
-                <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
-                <p><strong>Откуда:</strong> ${fromTitle}</p>
-                <p><strong>Куда:</strong> ${toTitle}</p>
-                <p><strong>Время отправления:</strong> ${departureTime}</p>
-                <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
-                <p><strong>Цена:</strong> ${price}</p>
-            </div>
-        `;
+        <div class="transport-details">
+            <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
+            <p><strong>Откуда:</strong> ${fromTitle}</p>
+            <p><strong>Куда:</strong> ${toTitle}</p>
+            <p><strong>Время отправления:</strong> ${departureTime}</p>
+            <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
+            <p><strong>Цена:</strong> ${price}</p>
+        </div>
+    `;
+
+        console.log('Transport Info HTML:', transportInfo);
 
         // Получаем stopIndex из модального окна
         const stopIndex = modal.data('stopIndex');
+        console.log('Stop Index для обновления UI:', stopIndex);
 
         // Сохранение выбранного транспорта в routeStopsData
         if (!routeStopsData[stopIndex]) {
@@ -330,9 +337,20 @@ $(function () {
         routeStopsData[stopIndex].Transportation = selectedTransport;
 
         // Обновление UI: отображение выбранного транспорта под остановкой
-        const stopFields = $('#stops-container .stop-fields').eq(stopIndex);
-        stopFields.find('.selected-transport .transport-info').html(transportInfo);
-        stopFields.find('.selected-transport').show();
+        const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
+        console.log('Selected stopFields:', stopFields);
+
+        const transportInfoElement = stopFields.find('.selected-transport .transport-info');
+        console.log('Found transport-info:', transportInfoElement.length > 0 ? 'Yes' : 'No');
+
+        if (transportInfoElement.length > 0) {
+            transportInfoElement.html(transportInfo);
+            stopFields.find('.selected-transport').show(); // Показываем блок
+            stopFields.find('.transport-info').css('display', 'block');
+            console.log('UI обновлено для остановки:', stopIndex);
+        } else {
+            console.log('transport-info элемент не найден для stopIndex:', stopIndex);
+        }
 
         // Закрытие модального окна
         $('#transportModal').hide();
@@ -442,17 +460,20 @@ $(function () {
 
         // Формирование строки с информацией об отеле
         const hotelInfo = `
-            <div class="hotel-details">
-                <p><strong>Название:</strong> ${hotelName}</p>
-                <p><strong>Адрес:</strong> ${hotelAddress}</p>
-                <p><strong>Цена:</strong> ${hotelPrice}</p>
-                <p><strong>Рейтинг:</strong> ${hotelRating}</p>
-                <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
-            </div>
-        `;
+        <div class="hotel-details">
+            <p><strong>Название:</strong> ${hotelName}</p>
+            <p><strong>Адрес:</strong> ${hotelAddress}</p>
+            <p><strong>Цена:</strong> ${hotelPrice}</p>
+            <p><strong>Рейтинг:</strong> ${hotelRating}</p>
+            <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
+        </div>
+    `;
+
+        console.log('Hotel Info HTML:', hotelInfo);
 
         // Получаем stopIndex из данных модального окна
         const stopIndex = modal.data('stopIndex');
+        console.log('Stop Index для обновления UI:', stopIndex);
 
         // Сохранение выбранного отеля в routeStopsData
         if (!routeStopsData[stopIndex]) {
@@ -461,13 +482,25 @@ $(function () {
         routeStopsData[stopIndex].Hotel = selectedHotel;
 
         // Обновление UI: отображение выбранного отеля под остановкой
-        const stopFields = $('#stops-container .stop-fields').eq(stopIndex);
-        stopFields.find('.selected-hotel .hotel-info').html(hotelInfo);
-        stopFields.find('.selected-hotel').show();
+        const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
+        console.log('Selected stopFields for hotel:', stopFields);
+
+        const hotelInfoElement = stopFields.find('.selected-hotel .hotel-info');
+        console.log('Found hotel-info:', hotelInfoElement.length > 0 ? 'Yes' : 'No');
+
+        if (hotelInfoElement.length > 0) {
+            hotelInfoElement.html(hotelInfo);
+            stopFields.find('.selected-hotel').show(); // Показываем блок
+            stopFields.find('.hotel-info').css('display', 'block');
+            console.log('UI обновлено для остановки:', stopIndex);
+        } else {
+            console.log('hotel-info элемент не найден для stopIndex:', stopIndex);
+        }
 
         // Закрытие модального окна
         $('#hotelModal').hide();
     });
+
 
     // Общий обработчик для активации кнопок подтверждения при выборе опции
     // Для транспорта

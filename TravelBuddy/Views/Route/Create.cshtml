@@ -16,13 +16,17 @@
 
         <div id="stops-container">
             <h4 class="stop-header">Остановки</h4>
-            <label>Город отправления</label>
-            <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
-            <div class="selected-transport mt-2" style="display: none;">
-                <strong>Выбранный транспорт:</strong> <span class="transport-info"></span>
-            </div>
-            <div class="selected-hotel mt-2" style="display: none;">
-                <strong>Выбранный отель:</strong> <span class="hotel-info"></span>
+            <div class="stop-fields" data-stop-index="0">
+                <label>Город отправления</label>
+                <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
+                <div class="selected-transport mt-2" style="display: none;">
+                    <strong>Выбранный транспорт:</strong>
+                    <div class="transport-info"></div>
+                </div>
+                <div class="selected-hotel mt-2" style="display: none;">
+                    <strong>Выбранный отель:</strong>
+                    <div class="hotel-info"></div>
+                </div>
             </div>
         </div>
 
@@ -146,15 +150,33 @@
         margin-top: 10px;
     }
 
+    .selected-info {
+        margin-top: 10px;
+    }
+
     .selected-transport,
     .selected-hotel {
         background-color: #e9ecef;
         padding: 10px;
         border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .transport-details,
+    .hotel-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .transport-details p,
+    .hotel-details p {
+        margin: 2px 0;
     }
 
     .hotel-details img {
-        display: block;
+        max-width: 100px;
+        height: auto;
+        margin-top: 10px;
     }
 </style>
 
