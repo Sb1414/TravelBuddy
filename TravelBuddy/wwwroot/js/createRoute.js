@@ -1,7 +1,8 @@
 $(function () {
     let stopCount = 1;
-    const routeStopsData = {}; // объект для хранения данных остановок (включая координаты)
+    const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты и транспорт)
     let cityCodes = {};
+    let currentStop = null; // Текущая остановка для выбора транспорта
 
     // Загрузка JSON-файла с кодами городов
     function loadCityCodes() {
@@ -23,7 +24,7 @@ $(function () {
         loadCityCodes();
     });
 
-    // функция для автозаполнения городов и получения координат
+    // Функция для автозаполнения городов и получения координат
     $(document).on("focus", ".city-autocomplete", function () {
         $(this).autocomplete({
             source: function (request, response) {
@@ -52,14 +53,20 @@ $(function () {
             minLength: 2,
             select: function (event, ui) {
                 const stopIndex = $(this).attr("name").match(/\d+/)[0];
-                routeStopsData[stopIndex] = {
-                    DestinationCity: ui.item.value,
-                    Latitude: ui.item.latitude,
-                    Longitude: ui.item.longitude,
-                    Transportation: null,
-                    Duration: null,
-                    DurationType: null
-                };
+                if (!routeStopsData[stopIndex]) {
+                    routeStopsData[stopIndex] = {
+                        DestinationCity: ui.item.value,
+                        Latitude: ui.item.latitude,
+                        Longitude: ui.item.longitude,
+                        Transportation: null,
+                        Duration: null,
+                        DurationType: null
+                    };
+                } else {
+                    routeStopsData[stopIndex].DestinationCity = ui.item.value;
+                    routeStopsData[stopIndex].Latitude = ui.item.latitude;
+                    routeStopsData[stopIndex].Longitude = ui.item.longitude;
+                }
             }
         });
     });
@@ -73,14 +80,17 @@ $(function () {
             <input type="text" name="RouteStops[${stopCount}].DestinationCity" class="form-control city-autocomplete mb-2" />
             <button type="button" class="btn btn-primary choose-transport-btn">Выбрать средство передвижения</button>
             <button type="button" class="btn btn-primary choose-hotel-btn">Выбрать отель</button>
+            <div class="selected-transport mt-2" style="display: none;">
+                <strong>Выбранный транспорт:</strong> <span class="transport-info"></span>
+            </div>
         </div>
         `);
     });
 
     // Открытие модального окна транспорта
     $(document).on('click', '.choose-transport-btn', function () {
-        const stopFields = $(this).closest('.stop-fields');
-        const previousStopFields = stopFields.prev('.stop-fields');
+        currentStop = $(this).closest('.stop-fields');
+        const previousStopFields = currentStop.prev('.stop-fields');
 
         // Город отправления: либо из #initialCity, либо из предыдущей остановки
         const fromCity = previousStopFields.length
@@ -88,9 +98,9 @@ $(function () {
             : $('#initialCity').val();
 
         // Город назначения — текущая остановка
-        const toCity = stopFields.find('input[name*="DestinationCity"]').val();
-        
-        console.log("toCity: " + fromCity);
+        const toCity = currentStop.find('input[name*="DestinationCity"]').val();
+
+        console.log("fromCity: " + fromCity);
         console.log("toCity: " + toCity);
         if (!fromCity || !toCity) {
             alert('Заполните города отправления и назначения.');
@@ -99,6 +109,11 @@ $(function () {
 
         $('#transportModalInfo').text(`Откуда: ${fromCity}, Куда: ${toCity}`);
         $('#transportModal').data('from', fromCity).data('to', toCity).show();
+
+        // Очистка предыдущих опций транспорта
+        $('#transportOptions tbody').empty();
+        $('#transportOptions').hide();
+        $('#confirmTransportBtn').prop('disabled', true);
     });
 
     // Открытие модального окна отелей
@@ -108,7 +123,7 @@ $(function () {
         $('#hotelModal').show();
     });
 
-    // Закрытие модальных окон
+    // Закрытие модальных окон при клике вне контента
     $('.modal').on('click', function (e) {
         if ($(e.target).is('.modal')) {
             $(this).hide();
@@ -167,7 +182,9 @@ $(function () {
                     return;
                 }
 
-                data.forEach(segment => {
+                let currentTransportOptions = data; // Сохраняем текущие опции транспорта
+
+                data.forEach((segment, index) => {
                     console.log("Сегмент:", JSON.stringify(segment, null, 2));
 
                     const carrierTitle = segment?.thread?.carrier?.title || 'Неизвестный перевозчик';
@@ -176,27 +193,35 @@ $(function () {
                     const fromTitle = segment?.from?.title || 'Неизвестно';
                     const toTitle = segment?.to?.title || 'Неизвестно';
 
+                    // Предполагаем, что цена находится в tickets_info.places[0].price, иначе "Неизвестно"
+                    let price = 'Неизвестно';
+                    if (segment.tickets_info && segment.tickets_info.places && segment.tickets_info.places.length > 0) {
+                        // Предполагаем, что 'price' есть в объекте place
+                        price = segment.tickets_info.places[0].price || 'Неизвестно';
+                    }
+
                     $('#transportOptions tbody').append(`
                         <tr>
                             <td>${carrierTitle}</td>
                             <td>${departureTime}</td>
                             <td>${arrivalTime}</td>
-                            <td>${fromTitle} - ${toTitle}</td>
                             <td>
-                                <button class="btn btn-primary select-transport-btn" 
-                                    data-thread-id="${segment?.thread?.uid || ''}" 
-                                    data-from="${fromTitle}" 
-                                    data-to="${toTitle}" 
-                                    data-departure="${departureTime}" 
-                                    data-arrival="${arrivalTime}">
-                                    Выбрать
-                                </button>
+                                <input type="radio" name="selectedTransport" value="${index}">
                             </td>
                         </tr>
                     `);
+
+                    // Добавляем обработчик события для радиокнопок
+                    $('#transportOptions tbody').on('change', `input[name="selectedTransport"][value="${index}"]`, function () {
+                        $('#confirmTransportBtn').prop('disabled', false);
+                    });
                 });
 
+                // Отобразить таблицу с опциями транспорта
                 $('#transportOptions').show();
+
+                // Сохраняем опции транспорта в данных модального окна
+                $('#transportModal').data('transportOptions', currentTransportOptions);
             },
             error: function () {
                 alert('Ошибка при получении данных транспорта.');
@@ -204,26 +229,69 @@ $(function () {
         });
     });
 
-    // Выбор конкретного транспорта
-    $(document).on('click', '.select-transport-btn', function () {
-        const selectedTransport = {
-            threadId: $(this).data('thread-id'),
-            from: $(this).data('from'),
-            to: $(this).data('to'),
-            departure: $(this).data('departure'),
-            arrival: $(this).data('arrival')
-        };
-
-        $('#confirmTransportBtn').data('selected-transport', selectedTransport).prop('disabled', false);
-    });
-
     // Подтверждение выбора транспорта
     $('#confirmTransportBtn').on('click', function () {
-        const transport = $(this).data('selected-transport');
-        alert(`Выбран транспорт: ${transport.threadId} (${transport.from} - ${transport.to})`);
+        const modal = $('#transportModal');
+        const transportOptions = modal.data('transportOptions');
+        const selectedTransportIndex = modal.find('input[name="selectedTransport"]:checked').val(); // Скоупинг внутри модала
+
+        if (selectedTransportIndex === undefined || selectedTransportIndex === null) {
+            alert('Выберите транспорт.');
+            return;
+        }
+
+        const selectedTransport = transportOptions[selectedTransportIndex];
+
+        if (!selectedTransport) {
+            alert('Некорректный выбор транспорта.');
+            return;
+        }
+
+        // Извлечение деталей транспорта
+        const carrierTitle = selectedTransport?.thread?.carrier?.title || 'Неизвестный перевозчик';
+        const departureTime = selectedTransport?.departure ? new Date(selectedTransport.departure).toLocaleString('ru-RU') : 'Неизвестно';
+        const arrivalTime = selectedTransport?.arrival ? new Date(selectedTransport.arrival).toLocaleString('ru-RU') : 'Неизвестно';
+        const fromTitle = selectedTransport?.from?.title || 'Неизвестно';
+        const toTitle = selectedTransport?.to?.title || 'Неизвестно';
+
+        // Извлечение стоимости, если доступна
+        let price = 'Неизвестно';
+        if (selectedTransport.tickets_info && selectedTransport.tickets_info.places && selectedTransport.tickets_info.places.length > 0) {
+            // Предполагаем, что 'price' есть в объекте place
+            price = selectedTransport.tickets_info.places[0].price || 'Неизвестно';
+        }
+
+        // Формирование строки с информацией о транспорте
+        const transportInfo = `
+            <div class="transport-details">
+                <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
+                <p><strong>Откуда:</strong> ${fromTitle}</p>
+                <p><strong>Куда:</strong> ${toTitle}</p>
+                <p><strong>Время отправления:</strong> ${departureTime}</p>
+                <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
+                <p><strong>Цена:</strong> ${price}</p>
+            </div>
+        `;
+
+        // Сохранение выбранного транспорта в routeStopsData
+        const stopInput = currentStop.find('input[name*="DestinationCity"], input[name*="FromCity"]');
+        const stopIndex = stopInput.attr('name').match(/\d+/)[0];
+        if (!routeStopsData[stopIndex]) {
+            routeStopsData[stopIndex] = {};
+        }
+        routeStopsData[stopIndex].Transportation = selectedTransport;
+        routeStopsData[stopIndex].Duration = selectedTransport?.duration || null;
+        routeStopsData[stopIndex].DurationType = null; // по необходимости
+
+        // Обновление UI: отображение выбранного транспорта под остановкой
+        currentStop.find('.selected-transport .transport-info').html(transportInfo);
+        currentStop.find('.selected-transport').show();
+
+        // Закрытие модального окна
         $('#transportModal').hide();
     });
-    
+
+
     // Поиск отелей
     $('#searchHotelBtn').on('click', function () {
         // Имитация поиска отелей
@@ -240,5 +308,12 @@ $(function () {
     // Выбор отеля
     $(document).on('click', '.select-hotel-btn', function () {
         $('#confirmHotelBtn').prop('disabled', false);
+    });
+
+    // Подтверждение выбора отеля (можно добавить аналогично транспорту)
+    $('#confirmHotelBtn').on('click', function () {
+        // Логика для подтверждения выбора отеля
+        alert('Отель выбран.');
+        $('#hotelModal').hide();
     });
 });

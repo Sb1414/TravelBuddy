@@ -18,6 +18,9 @@
             <h4 class="stop-header">Остановки</h4>
             <label>Город отправления</label>
             <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
+            <div class="selected-transport mt-2" style="display: none;">
+                <strong>Выбранный транспорт:</strong> <span class="transport-info"></span>
+            </div>
         </div>
 
         <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
@@ -133,6 +136,12 @@
     .modal-content table {
         width: 100%;
         margin-top: 10px;
+    }
+
+    .selected-transport {
+        background-color: #e9ecef;
+        padding: 10px;
+        border-radius: 5px;
     }
 </style>
 
