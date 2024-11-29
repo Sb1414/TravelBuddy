@@ -27,7 +27,6 @@
                     
                     @if (i != Model.RouteStops.Count - 1) 
                     {
-                        <strong>Транспорт:</strong> @stop.Transportation <br />
                         <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
                     }
                 </li>
@@ -76,7 +75,6 @@
             // данные остановок маршрута
             const stops = @Html.Raw(JsonConvert.SerializeObject(Model.RouteStops.OrderBy(stop => stop.Id).Select(stop => new {
                 DestinationCity = stop.DestinationCity,
-                Transportation = stop.Transportation,
                 Duration = stop.Duration,
                 DurationType = stop.DurationType,
                 Latitude = stop.Latitude,

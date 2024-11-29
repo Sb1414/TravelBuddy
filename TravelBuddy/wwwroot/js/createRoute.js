@@ -1,11 +1,10 @@
 $(function () {
-    let stopCount = 1; // Начинаем с 1, так как 0 уже используется для initialCity
-    const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты, транспорт и отель)
+    let stopCount = 1;
+    const routeStopsData = [];
     let cityCodes = {};
-    let currentStop = null; // Текущая остановка для выбора транспорта или отеля
-    const stationCoordinatesCache = {}; // Кэш для хранения координат станций
+    let currentStop = null;
+    const stationCoordinatesCache = {};
 
-    // Загрузка JSON-файла с кодами городов
     function loadCityCodes() {
         $.getJSON('/data/cityCodes.json', function (data) {
             cityCodes = data;
@@ -15,15 +14,12 @@ $(function () {
         });
     }
 
-    // Получение кода города по названию
     function getCityCode(cityName) {
         return cityCodes[cityName] || null;
     }
 
-    // Функция для получения координат станции с использованием OpenWeatherMap API
     function getStationCoordinates(stationName) {
         return new Promise((resolve, reject) => {
-            // Проверка кэша
             if (stationCoordinatesCache[stationName]) {
                 console.log(`Координаты станции "${stationName}" получены из кэша.`);
                 resolve(stationCoordinatesCache[stationName]);
@@ -45,26 +41,20 @@ $(function () {
                             latitude: data[0].lat,
                             longitude: data[0].lon
                         };
-                        // Сохраняем в кэш
                         stationCoordinatesCache[stationName] = coords;
                         resolve(coords);
                     } else {
-                        reject(`Координаты для станции "${stationName}" не найдены.`);
+                        console.log(`Координаты для станции "${stationName}" не найдены.`);
                     }
-                },
-                error: function () {
-                    reject(`Ошибка при получении координат для станции "${stationName}".`);
                 }
             });
         });
     }
 
-    // Загрузка кодов при запуске
     $(document).ready(function () {
         loadCityCodes();
     });
 
-    // Функция для автозаполнения городов и получения координат
     $(document).on("focus", ".city-autocomplete", function () {
         $(this).autocomplete({
             source: function (request, response) {
@@ -95,13 +85,15 @@ $(function () {
                 const stopElement = $(this).closest('.stop-fields');
                 const stopIndex = stopElement.data('stop-index');
                 if (!routeStopsData[stopIndex]) {
-                    routeStopsData[stopIndex] = {
+                    routeStopsData.push({
                         DestinationCity: ui.item.value,
                         Latitude: ui.item.latitude,
                         Longitude: ui.item.longitude,
                         Transportation: null,
+                        TransportationFromCoords: null,
+                        TransportationToCoords: null,
                         Hotel: null
-                    };
+                    });
                 } else {
                     routeStopsData[stopIndex].DestinationCity = ui.item.value;
                     routeStopsData[stopIndex].Latitude = ui.item.latitude;
@@ -112,7 +104,6 @@ $(function () {
         });
     });
 
-    // Добавление новой остановки
     $('#add-stop-btn').on('click', function () {
         const newStopIndex = stopCount;
         stopCount++;
@@ -134,7 +125,6 @@ $(function () {
         `);
     });
 
-    // Открытие модального окна транспорта
     $(document).on('click', '.choose-transport-btn', function () {
         currentStop = $(this).closest('.stop-fields');
         const stopIndex = currentStop.data('stop-index');
@@ -164,30 +154,23 @@ $(function () {
         }
 
         $('#transportModalInfo').text(`Откуда: ${fromCity}, Куда: ${toCity}`);
-        // Устанавливаем stopIndex в модальное окно транспорта
         $('#transportModal').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex).show();
-
-        // Очистка предыдущих опций транспорта
         $('#transportOptions tbody').empty();
         $('#transportOptions').hide();
         $('#confirmTransportBtn').prop('disabled', true);
 
-        // Очистим предыдущие данные транспорта, если необходимо
         currentStop.find('.selected-transport .transport-info').empty().hide();
     });
 
-    // Открытие модального окна отелей
     $(document).on('click', '.choose-hotel-btn', function () {
         currentStop = $(this).closest('.stop-fields');
         const stopIndex = currentStop.data('stop-index');
 
-        // Проверка, выбран ли транспорт для этой остановки
         if (!routeStopsData[stopIndex] || !routeStopsData[stopIndex].Transportation) {
             alert('Пожалуйста, сначала выберите транспорт.');
             return;
         }
 
-        // Получаем город назначения
         const cityInput = currentStop.find('input[name*="DestinationCity"]');
         const city = cityInput.val();
 
@@ -196,8 +179,18 @@ $(function () {
             return;
         }
 
-        // Получаем дату прибытия транспорта и устанавливаем ее как дату заезда
-        const arrivalDate = new Date(routeStopsData[stopIndex].Transportation.arrival);
+        const arrivalRaw = routeStopsData[stopIndex].TransportationArrivalTime;
+        if (!arrivalRaw) {
+            alert('Время прибытия транспорта не установлено.');
+            return;
+        }
+
+        const arrivalDate = new Date(arrivalRaw);
+        if (isNaN(arrivalDate.getTime())) {
+            alert('Неверное время прибытия транспорта.');
+            return;
+        }
+
         const checkInDate = arrivalDate.toISOString().split('T')[0];
         $('#hotelCheckIn').val(checkInDate);
         console.log(`Дата заезда для остановки ${stopIndex}: ${checkInDate}`);
@@ -205,28 +198,23 @@ $(function () {
         $('#hotelModalInfo').text(`Выбор отеля для ${city}`);
         $('#hotelModal').data('stopIndex', stopIndex).data('city', city).show();
 
-        // Очистка предыдущих опций отелей
         $('#hotelOptions tbody').empty();
         $('#hotelOptions').hide();
         $('#confirmHotelBtn').prop('disabled', true);
 
-        // Очистим предыдущие данные отеля, если необходимо
         currentStop.find('.selected-hotel .hotel-info').empty().hide();
     });
 
-    // Закрытие модальных окон при клике вне содержимого
     $('.modal').on('click', function (e) {
         if ($(e.target).is('.modal')) {
             $(this).hide();
         }
     });
 
-    // Обработчик кнопки "Отмена" в модальных окнах
     $(document).on('click', '.cancel-modal-btn', function () {
         $(this).closest('.modal').hide();
     });
 
-    // Поиск транспорта через API
     $('#searchTransportBtn').on('click', function () {
         const modal = $('#transportModal');
         const fromCity = modal.data('from');
@@ -247,7 +235,6 @@ $(function () {
             return;
         }
 
-        // Отправка запроса на сервер
         $.ajax({
             url: `/Transport/Search`,
             method: 'POST',
@@ -255,7 +242,6 @@ $(function () {
             success: function (data) {
                 console.log("Полученные данные:", data);
 
-                // Проверка типа данных
                 if (typeof data === 'string') {
                     try {
                         data = JSON.parse(data);
@@ -278,7 +264,7 @@ $(function () {
                     return;
                 }
 
-                let currentTransportOptions = data; // Сохраняем текущие опции транспорта
+                let currentTransportOptions = data;
 
                 data.forEach((segment, index) => {
                     console.log("Сегмент:", JSON.stringify(segment, null, 2));
@@ -289,10 +275,8 @@ $(function () {
                     const fromTitle = segment?.from?.title || 'Неизвестно';
                     const toTitle = segment?.to?.title || 'Неизвестно';
 
-                    // Предполагаем, что цена находится в tickets_info.places[0].price, иначе "Неизвестно"
                     let price = 'Неизвестно';
                     if (segment.tickets_info && segment.tickets_info.places && segment.tickets_info.places.length > 0) {
-                        // Предполагаем, что 'price' есть в объекте place
                         price = segment.tickets_info.places[0].price || 'Неизвестно';
                     }
 
@@ -308,10 +292,8 @@ $(function () {
                     `);
                 });
 
-                // Отобразить таблицу с опциями транспорта
                 $('#transportOptions').show();
 
-                // Сохраняем опции транспорта в данных модального окна
                 $('#transportModal').data('transportOptions', currentTransportOptions);
             },
             error: function () {
@@ -320,11 +302,10 @@ $(function () {
         });
     });
 
-    // Подтверждение выбора транспорта
-    $('#confirmTransportBtn').on('click', async function () { // Сделали функцию async для использования await
+    $('#confirmTransportBtn').on('click', async function () {
         const modal = $('#transportModal');
         const transportOptions = modal.data('transportOptions');
-        const selectedTransportIndex = modal.find('input[name="selectedTransport"]:checked').val(); // Скоупинг внутри модала
+        const selectedTransportIndex = modal.find('input[name="selectedTransport"]:checked').val();
 
         if (selectedTransportIndex === undefined || selectedTransportIndex === null) {
             alert('Выберите транспорт.');
@@ -338,53 +319,46 @@ $(function () {
             return;
         }
 
-        // Извлечение деталей транспорта
         const carrierTitle = selectedTransport?.thread?.carrier?.title || 'Неизвестный перевозчик';
         const departureTime = selectedTransport?.departure ? new Date(selectedTransport.departure).toLocaleString('ru-RU') : 'Неизвестно';
         const arrivalTime = selectedTransport?.arrival ? new Date(selectedTransport.arrival).toLocaleString('ru-RU') : 'Неизвестно';
         const fromTitle = selectedTransport?.from?.title || 'Неизвестно';
         const toTitle = selectedTransport?.to?.title || 'Неизвестно';
 
-        // Извлечение стоимости, если доступна
         let price = 'Неизвестно';
         if (selectedTransport.tickets_info && selectedTransport.tickets_info.places && selectedTransport.tickets_info.places.length > 0) {
-            // Предполагаем, что 'price' есть в объекте place
             price = selectedTransport.tickets_info.places[0].price || 'Неизвестно';
         }
 
         try {
-            // Получение координат станций отправления и прибытия
             const fromCoords = await getStationCoordinates(fromTitle);
             const toCoords = await getStationCoordinates(toTitle);
 
-            // Формирование строки с информацией о транспорте, включая координаты
             const transportInfo = `
-                <div class="transport-details">
-                    <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
-                    <p><strong>Откуда:</strong> ${fromTitle} (Широта: ${fromCoords.latitude}, Долгота: ${fromCoords.longitude})</p>
-                    <p><strong>Куда:</strong> ${toTitle} (Широта: ${toCoords.latitude}, Долгота: ${toCoords.longitude})</p>
-                    <p><strong>Время отправления:</strong> ${departureTime}</p>
-                    <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
-                    <p><strong>Цена:</strong> ${price}</p>
-                </div>
-            `;
+            <div class="transport-details">
+                <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
+                <p><strong>Откуда:</strong> ${fromTitle}</p>
+                <p><strong>Куда:</strong> ${toTitle}</p>
+                <p><strong>Время отправления:</strong> ${departureTime}</p>
+                <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
+                <p><strong>Цена:</strong> ${price}</p>
+            </div>
+        `;
 
             console.log('Transport Info HTML:', transportInfo);
 
-            // Получаем stopIndex из модального окна
             const stopIndex = modal.data('stopIndex');
             console.log('Stop Index для обновления UI:', stopIndex);
 
-            // Сохранение выбранного транспорта в routeStopsData
             if (!routeStopsData[stopIndex]) {
                 routeStopsData[stopIndex] = {};
             }
+
+            routeStopsData[stopIndex].TransportationArrivalTime = selectedTransport.arrival;
             routeStopsData[stopIndex].Transportation = selectedTransport;
-            // Сохранение координат в routeStopsData
             routeStopsData[stopIndex].TransportationFromCoords = fromCoords;
             routeStopsData[stopIndex].TransportationToCoords = toCoords;
 
-            // Обновление UI: отображение выбранного транспорта под остановкой
             const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
             console.log('Selected stopFields:', stopFields);
 
@@ -393,25 +367,23 @@ $(function () {
 
             if (transportInfoElement.length > 0) {
                 transportInfoElement.html(transportInfo);
-                stopFields.find('.selected-transport').show(); // Показываем блок
+                stopFields.find('.selected-transport').show();
                 stopFields.find('.transport-info').css('display', 'block');
                 console.log('UI обновлено для остановки:', stopIndex);
             } else {
                 console.log('transport-info элемент не найден для stopIndex:', stopIndex);
             }
 
-            // Закрытие модального окна
             $('#transportModal').hide();
         } catch (error) {
             alert(error);
         }
     });
 
-    // Поиск отелей
     $('#searchHotelBtn').on('click', function () {
         const modal = $('#hotelModal');
         const city = modal.data('city');
-        const checkIn = $('#hotelCheckIn').val(); // Автоматически установлено
+        const checkIn = $('#hotelCheckIn').val(); 
         const checkOut = $('#hotelCheckOut').val();
         const adults = parseInt($('#hotelAdults').val()) || 1;
         const children = parseInt($('#hotelChildren').val()) || 0;
@@ -421,7 +393,6 @@ $(function () {
             return;
         }
 
-        // Проверка, что дата выезда позже даты заезда
         const checkInDate = new Date(checkIn);
         const checkOutDate = new Date(checkOut);
 
@@ -430,13 +401,22 @@ $(function () {
             return;
         }
 
-        // Отправка AJAX-запроса на поиск отелей
         $.ajax({
             url: `/Hotels/Search`,
             method: 'POST',
             data: { city: city, checkIn: checkIn, checkOut: checkOut, adults: adults, children: children },
             success: function (data) {
                 console.log("Полученные данные отелей:", data);
+
+                if (typeof data === 'string') {
+                    try {
+                        data = JSON.parse(data);
+                        console.log("Парсинг JSON отелей прошёл успешно:", data);
+                    } catch (e) {
+                        alert("Ошибка при парсинге JSON отелей: " + e.message);
+                        return;
+                    }
+                }
 
                 if (!Array.isArray(data)) {
                     alert("Неверный формат данных от API отелей.");
@@ -450,7 +430,7 @@ $(function () {
                     return;
                 }
 
-                let currentHotelOptions = data; // Сохраняем текущие опции отелей
+                let currentHotelOptions = data;
 
                 data.forEach((hotel, index) => {
                     console.log("Отель:", JSON.stringify(hotel, null, 2));
@@ -472,10 +452,8 @@ $(function () {
                     `);
                 });
 
-                // Отобразить таблицу с опциями отелей
                 $('#hotelOptions').show();
 
-                // Сохраняем опции отелей в данных модального окна
                 $('#hotelModal').data('hotelOptions', currentHotelOptions);
             },
             error: function () {
@@ -484,11 +462,10 @@ $(function () {
         });
     });
 
-    // Подтверждение выбора отеля
     $('#confirmHotelBtn').on('click', function () {
         const modal = $('#hotelModal');
         const hotelOptions = modal.data('hotelOptions');
-        const selectedHotelIndex = modal.find('input[name="selectedHotel"]:checked').val(); // Скоупинг внутри модала
+        const selectedHotelIndex = modal.find('input[name="selectedHotel"]:checked').val();
 
         if (selectedHotelIndex === undefined || selectedHotelIndex === null) {
             alert('Выберите отель.');
@@ -502,18 +479,17 @@ $(function () {
             return;
         }
 
-        // Извлечение деталей отеля с правильным регистром
         const hotelName = selectedHotel?.name || 'Неизвестно';
-        const hotelAddress = selectedHotel?.address || 'Адрес не указан';
         const hotelPrice = selectedHotel?.price ? `${selectedHotel.price} руб.` : 'Неизвестно';
         const hotelRating = selectedHotel?.rating ? `${selectedHotel.rating} / 5` : 'Нет рейтинга';
         const hotelImageUrl = selectedHotel?.imageUrl || '/images/no-image.png';
+        const hotelLatitude = selectedHotel?.latitude || 'Неизвестно';
+        const hotelLongitude = selectedHotel?.longitude || 'Неизвестно';
 
-        // Формирование строки с информацией об отеле
         const hotelInfo = `
             <div class="hotel-details">
                 <p><strong>Название:</strong> ${hotelName}</p>
-                <p><strong>Адрес:</strong> ${hotelAddress}</p>
+                <p><strong>Координаты:</strong> Широта: ${hotelLatitude}, Долгота: ${hotelLongitude}</p>
                 <p><strong>Цена:</strong> ${hotelPrice}</p>
                 <p><strong>Рейтинг:</strong> ${hotelRating}</p>
                 <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
@@ -522,17 +498,14 @@ $(function () {
 
         console.log('Hotel Info HTML:', hotelInfo);
 
-        // Получаем stopIndex из данных модального окна
         const stopIndex = modal.data('stopIndex');
         console.log('Stop Index для обновления UI:', stopIndex);
 
-        // Сохранение выбранного отеля в routeStopsData
         if (!routeStopsData[stopIndex]) {
             routeStopsData[stopIndex] = {};
         }
         routeStopsData[stopIndex].Hotel = selectedHotel;
 
-        // Обновление UI: отображение выбранного отеля под остановкой
         const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
         console.log('Selected stopFields for hotel:', stopFields);
 
@@ -541,26 +514,25 @@ $(function () {
 
         if (hotelInfoElement.length > 0) {
             hotelInfoElement.html(hotelInfo);
-            stopFields.find('.selected-hotel').show(); // Показываем блок
+            stopFields.find('.selected-hotel').show();
             stopFields.find('.hotel-info').css('display', 'block');
             console.log('UI обновлено для остановки:', stopIndex);
         } else {
             console.log('hotel-info элемент не найден для stopIndex:', stopIndex);
         }
 
-        // Закрытие модального окна
         $('#hotelModal').hide();
     });
 
-
-    // Общий обработчик для активации кнопок подтверждения при выборе опции
-    // Для транспорта
     $('#transportOptions tbody').on('change', 'input[name="selectedTransport"]', function () {
         $('#confirmTransportBtn').prop('disabled', false);
     });
 
-    // Для отелей
     $('#hotelOptions tbody').on('change', 'input[name="selectedHotel"]', function () {
         $('#confirmHotelBtn').prop('disabled', false);
+    });
+
+    $('form').on('submit', function (e) {
+        $('#routeStopsData').val(JSON.stringify(routeStopsData));
     });
 });

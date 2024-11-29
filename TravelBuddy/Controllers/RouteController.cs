@@ -5,7 +5,8 @@ using TravelBuddy.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TravelBuddy.Controllers;
 
@@ -35,7 +36,6 @@ public class RouteController : Controller
         return View();
     }
 
-    
     [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -48,77 +48,84 @@ public class RouteController : Controller
         }
 
         var currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null)
+        if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
         {
-            Console.WriteLine("Не удалось получить текущего пользователя.");
+            Console.WriteLine("Не удалось получить текущего пользователя или его Id.");
             return Json(new { success = false, message = "Не удалось получить текущего пользователя" });
         }
 
         route.UserId = currentUser.Id;
         route.ApplicationUser = currentUser;
-        route.RouteName = route.RouteName ?? "Маршрут";
-        
-        ModelState.Remove("UserId"); 
-        for (int i = 0; i < route.RouteStops.Count; i++)
+        route.RouteName = string.IsNullOrWhiteSpace(route.RouteName) ? "Маршрут" : route.RouteName;
+
+        // Десериализация routeStopsData
+        List<RouteStopDTO> stopsDTO;
+        try
         {
-            ModelState.Remove($"RouteStops[{i}].Route");
+            stopsDTO = JsonSerializer.Deserialize<List<RouteStopDTO>>(routeStopsData, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
         }
-        ModelState.Remove("ApplicationUser");
-
-        route.RouteStops.Clear();
-        if (ModelState.IsValid)
+        catch (Exception ex)
         {
-            try
-            {
-                _context.UserRoutes.Add(route);
-                await _context.SaveChangesAsync();
-
-                var stopsData = JsonConvert.DeserializeObject<Dictionary<int, RouteStop>>(routeStopsData);
-
-                foreach (var stopData in stopsData.Values)
-                {
-                    var stop = new RouteStop
-                    {
-                        RouteId = route.Id,
-                        Route = route,
-                        DestinationCity = stopData.DestinationCity,
-                        Transportation = stopData.Transportation,
-                        Duration = stopData.Duration,
-                        DurationType = stopData.DurationType,
-                        Latitude = stopData.Latitude,
-                        Longitude = stopData.Longitude
-                    };
-
-                    _context.RouteStops.Add(stop);
-                }
-
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Маршрут и остановки успешно сохранены!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Ошибка при сохранении данных: {ex.Message}" });
-            }
+            Console.WriteLine($"Ошибка при десериализации: {ex.Message}");
+            ModelState.AddModelError("", "Ошибка при обработке данных остановок.");
+            return View(route);
         }
-        else
+
+        if (stopsDTO == null || !stopsDTO.Any())
         {
-            var errorDetails = ModelState
-                .Where(ms => ms.Value.Errors.Count > 0)
-                .Select(ms => new 
-                {
-                    Field = ms.Key,
-                    Errors = ms.Value.Errors.Select(e => e.ErrorMessage).ToList()
-                })
-                .ToList();
-
-            Console.WriteLine("Ошибки валидации:");
-            foreach (var error in errorDetails)
-            {
-                Console.WriteLine($"Поле: {error.Field}, Ошибки: {string.Join(", ", error.Errors)}");
-            }
-
-            return Json(new { success = false, message = "Ошибки валидации", errors = errorDetails });
+            Console.WriteLine("Нет остановок для сохранения.");
+            ModelState.AddModelError("", "Необходимо добавить хотя бы одну остановку.");
+            return View(route);
         }
+
+        // Создание списка RouteStop из DTO
+        foreach (var stopDTO in stopsDTO)
+        {
+            var stop = new RouteStop
+            {
+                DestinationCity = stopDTO.DestinationCity,
+                Latitude = stopDTO.Latitude,
+                Longitude = stopDTO.Longitude,
+                TransportationCarrier = stopDTO.Transportation?.thread?.carrier?.title,
+                TransportationDepartureTime = stopDTO.Transportation?.departure,
+                TransportationArrivalTime = stopDTO.Transportation?.arrival,
+                TransportationFromTitle = stopDTO.Transportation?.from?.title,
+                TransportationToTitle = stopDTO.Transportation?.to?.title,
+                TransportationFromLatitude = stopDTO.TransportationFromCoords?.latitude,
+                TransportationFromLongitude = stopDTO.TransportationFromCoords?.longitude,
+                TransportationToLatitude = stopDTO.TransportationToCoords?.latitude,
+                TransportationToLongitude = stopDTO.TransportationToCoords?.longitude,
+                TransportationPrice = stopDTO.Transportation?.tickets_info?.places.FirstOrDefault()?.ToString() ?? "Неизвестно", // Потребуется доработка
+                HotelName = stopDTO.Hotel?.name,
+                HotelLatitude = stopDTO.Hotel?.latitude,
+                HotelLongitude = stopDTO.Hotel?.longitude,
+                HotelPrice = Convert.ToString(stopDTO.Hotel?.price),
+                HotelRating = stopDTO.Hotel?.rating.ToString(),
+                HotelImageUrl = stopDTO.Hotel?.imageUrl,
+                Duration = stopDTO.Duration,
+                DurationType = stopDTO.DurationType
+            };
+
+            route.RouteStops.Add(stop);
+        }
+
+        try
+        {
+            _context.UserRoutes.Add(route);
+            await _context.SaveChangesAsync();
+            Console.WriteLine("Маршрут успешно сохранен.");
+            return RedirectToAction("Routes");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при сохранении маршрута: {ex.Message}");
+            ModelState.AddModelError("", "Ошибка при сохранении маршрута: " + ex.Message);
+        }
+
+        return View(route);
     }
     
     [HttpGet]
@@ -136,6 +143,4 @@ public class RouteController : Controller
 
         return View(route);
     }
-
-
 }
