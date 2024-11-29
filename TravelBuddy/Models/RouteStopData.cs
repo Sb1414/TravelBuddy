@@ -27,6 +27,7 @@ public class TransportationDTO
     public string stops { get; set; }
     public StationDTO from { get; set; }
     public StationDTO to { get; set; }
+    public string TransportType { get; set; }
     public string departure_platform { get; set; }
     public string arrival_platform { get; set; }
     public string departure_terminal { get; set; }

@@ -4,7 +4,14 @@ $(function () {
     let cityCodes = {};
     let currentStop = null;
     const coordinatesCache = {};
-
+    const transportTypes = {
+        plane: "Самолет",
+        train: "Поезд",
+        suburban: "Электричка",
+        bus: "Автобус",
+        water: "Морской транспорт",
+        helicopter: "Вертолет"
+    };
     function loadCityCodes() {
         $.getJSON('/data/cityCodes.json', function (data) {
             cityCodes = data;
@@ -23,11 +30,11 @@ $(function () {
         return new Promise((resolve, reject) => {
             const cacheKey = `station_${stationName}`;
 
-            if (coordinatesCache[cacheKey]) {
-                console.log(`Координаты станции "${stationName}" получены из кэша.`);
-                resolve(coordinatesCache[cacheKey]);
-                return;
-            }
+            // if (coordinatesCache[cacheKey]) {
+            //     console.log(`Координаты станции "${stationName}" получены из кэша.`);
+            //     resolve(coordinatesCache[cacheKey]);
+            //     return;
+            // }
 
             $.ajax({
                 url: "https://nominatim.openstreetmap.org/search",
@@ -355,7 +362,12 @@ $(function () {
         const fromCity = modal.data('from');
         const toCity = modal.data('to');
         const date = $('#transportDate').val();
-        const transportType = $('#transportType').val();
+        const transportType = $('#transportTypeSelect').val();
+
+        if (!transportType) {
+            alert('Пожалуйста, выберите тип транспорта.');
+            return;
+        }
 
         const fromCode = getCityCode(fromCity);
         const toCode = getCityCode(toCity);
@@ -371,7 +383,7 @@ $(function () {
         }
 
         $.ajax({
-            url: `/Transport/Search`,
+            url: `/Transport/Search`, // Предполагается, что ваш серверный API поддерживает фильтрацию по типу транспорта
             method: 'POST',
             data: { from: fromCode, to: toCode, date: date, transportType: transportType },
             success: function (data) {
@@ -405,6 +417,7 @@ $(function () {
                     console.log("Сегмент:", JSON.stringify(segment, null, 2));
 
                     const carrierTitle = segment?.thread?.carrier?.title || 'Неизвестный перевозчик';
+                    const transportTypeName = transportTypes[segment?.transportType] || 'Неизвестно';
                     const departureTime = segment?.departure ? new Date(segment.departure).toLocaleString('ru-RU') : 'Неизвестно';
                     const arrivalTime = segment?.arrival ? new Date(segment.arrival).toLocaleString('ru-RU') : 'Неизвестно';
                     const fromTitle = segment?.from?.title || 'Неизвестно';
@@ -418,6 +431,7 @@ $(function () {
                     $('#transportOptions tbody').append(`
                         <tr>
                             <td>${carrierTitle}</td>
+                            <td>${transportTypeName}</td>
                             <td>${departureTime}</td>
                             <td>${arrivalTime}</td>
                             <td>
@@ -458,10 +472,26 @@ $(function () {
         }
 
         const carrierTitle = selectedTransport?.thread?.carrier?.title || 'Неизвестный перевозчик';
-        const departureTime = selectedTransport?.departure ? new Date(selectedTransport.departure).toLocaleString('ru-RU') : 'Неизвестно';
-        const arrivalTime = selectedTransport?.arrival ? new Date(selectedTransport.arrival).toLocaleString('ru-RU') : 'Неизвестно';
-        const fromTitle = selectedTransport?.from?.title || 'Неизвестно';
-        const toTitle = selectedTransport?.to?.title || 'Неизвестно';
+        let transportType = selectedTransport?.transportType || 'Неизвестно'; // Изменено на let для возможности изменения
+        let departureTime = selectedTransport?.departure ? new Date(selectedTransport.departure).toLocaleString('ru-RU') : 'Неизвестно';
+        let arrivalTime = selectedTransport?.arrival ? new Date(selectedTransport.arrival).toLocaleString('ru-RU') : 'Неизвестно';
+        const fromTitleOriginal = selectedTransport?.from?.title || 'Неизвестно';
+        const toTitleOriginal = selectedTransport?.to?.title || 'Неизвестно';
+
+        // Проверка типа транспорта и добавление слова "вокзал" при необходимости
+        let fromTitle = fromCity;
+        let toTitle = toCity;
+
+        if (carrierTitle.toLowerCase().includes('ржд')) {
+            if (!fromTitle.toLowerCase().includes('вокзал')) {
+                fromTitle += ' вокзал';
+            }
+            if (!toTitle.toLowerCase().includes('вокзал')) {
+                toTitle += ' вокзал';
+            }
+        }
+        
+        console.log(fromTitle, " ", toTitle);
 
         let price = 'Неизвестно';
         if (selectedTransport.tickets_info && selectedTransport.tickets_info.places && selectedTransport.tickets_info.places.length > 0) {
@@ -469,7 +499,6 @@ $(function () {
         }
 
         try {
-            // Получение координат станции отправления и прибытия
             const fromCoords = await getStationCoordinates(fromTitle, fromCity);
             const toCoords = await getStationCoordinates(toTitle, toCity);
 
@@ -478,17 +507,17 @@ $(function () {
             const toLatitude = parseFloat(toCoords.latitude);
             const toLongitude = parseFloat(toCoords.longitude);
 
-
             const transportInfo = `
-                <div class="transport-details">
-                    <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
-                    <p><strong>Откуда:</strong> ${fromTitle}</p>
-                    <p><strong>Куда:</strong> ${toTitle}</p>
-                    <p><strong>Время отправления:</strong> ${departureTime}</p>
-                    <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
-                    <p><strong>Цена:</strong> ${price}</p>
-                </div>
-            `;
+            <div class="transport-details">
+                <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
+                <p><strong>Тип транспорта:</strong> ${transportType}</p>
+                <p><strong>Откуда:</strong> ${fromTitleOriginal} (${fromTitle})</p>
+                <p><strong>Куда:</strong> ${toTitleOriginal} (${toTitle})</p>
+                <p><strong>Время отправления:</strong> ${departureTime}</p>
+                <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
+                <p><strong>Цена:</strong> ${price}</p>
+            </div>
+        `;
 
             console.log('Transport Info HTML:', transportInfo);
 
@@ -501,6 +530,7 @@ $(function () {
 
             routeStopsData[stopIndex].TransportationArrivalTime = selectedTransport.arrival;
             routeStopsData[stopIndex].Transportation = selectedTransport;
+            routeStopsData[stopIndex].TransportationType = transportType;
 
             routeStopsData[stopIndex].TransportationFromCoords = {
                 latitude: fromLatitude,
@@ -520,7 +550,7 @@ $(function () {
             if (transportInfoElement.length > 0) {
                 transportInfoElement.html(transportInfo);
                 stopFields.find('.selected-transport').show();
-                stopFields.find('.transport-info').css('display', 'block');
+                transportInfoElement.css('display', 'block');
                 console.log('UI обновлено для остановки:', stopIndex);
             } else {
                 console.log('transport-info элемент не найден для stopIndex:', stopIndex);

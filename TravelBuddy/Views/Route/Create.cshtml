@@ -43,13 +43,16 @@
         <p id="transportModalInfo"></p>
         <label>Дата отправления</label>
         <input type="text" id="transportDate" class="form-control mb-2" />
-        <label>Тип транспорта</label>
-        <select id="transportType" class="form-control mb-2">
-            <option value="">Все</option>
-            <option value="plane">Самолёт</option>
-            <option value="bus">Автобус</option>
-            <option value="suburban">Электричка</option>
-        </select>
+        <label for="transportTypeSelect">Тип транспорта:</label>
+               <select id="transportTypeSelect" class="form-control">
+                   <option value="">Выберите тип</option>
+                   <option value="plane">Самолет</option>
+                   <option value="train">Поезд</option>
+                   <option value="suburban">Электричка</option>
+                   <option value="bus">Автобус</option>
+                   <option value="water">Морской транспорт</option>
+                   <option value="helicopter">Вертолет</option>
+               </select>
         <button type="button" id="searchTransportBtn" class="btn btn-primary">Поиск</button>
         <table id="transportOptions" class="table mt-3" style="display: none;">
             <thead>

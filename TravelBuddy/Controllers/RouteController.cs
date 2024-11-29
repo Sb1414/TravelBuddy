@@ -103,6 +103,7 @@ public class RouteController : Controller
                 TransportationToLatitude = stopDTO.TransportationToCoords?.Latitude,
                 TransportationToLongitude = stopDTO.TransportationToCoords?.Longitude,
                 TransportationPrice = randomPrice.ToString(),
+                TransportationType = stopDTO.Transportation?.TransportType,
                 HotelName = stopDTO.Hotel?.name,
                 HotelLatitude = stopDTO.Hotel?.latitude,
                 HotelLongitude = stopDTO.Hotel?.longitude,

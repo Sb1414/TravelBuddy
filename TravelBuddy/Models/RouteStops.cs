@@ -17,6 +17,9 @@ public class RouteStop
     [Required]
     [Display(Name = "Город назначения")]
     public string DestinationCity { get; set; }
+    
+    [Display(Name = "Тип транспорта")]
+    public string? TransportationType { get; set; } 
 
     [Display(Name = "Перевозчик")]
     public string? TransportationCarrier { get; set; }
