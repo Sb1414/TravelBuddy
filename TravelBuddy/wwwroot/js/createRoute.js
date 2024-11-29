@@ -3,6 +3,7 @@ $(function () {
     const routeStopsData = {}; // Объект для хранения данных остановок (включая координаты, транспорт и отель)
     let cityCodes = {};
     let currentStop = null; // Текущая остановка для выбора транспорта или отеля
+    const stationCoordinatesCache = {}; // Кэш для хранения координат станций
 
     // Загрузка JSON-файла с кодами городов
     function loadCityCodes() {
@@ -17,6 +18,45 @@ $(function () {
     // Получение кода города по названию
     function getCityCode(cityName) {
         return cityCodes[cityName] || null;
+    }
+
+    // Функция для получения координат станции с использованием OpenWeatherMap API
+    function getStationCoordinates(stationName) {
+        return new Promise((resolve, reject) => {
+            // Проверка кэша
+            if (stationCoordinatesCache[stationName]) {
+                console.log(`Координаты станции "${stationName}" получены из кэша.`);
+                resolve(stationCoordinatesCache[stationName]);
+                return;
+            }
+
+            $.ajax({
+                url: "http://api.openweathermap.org/geo/1.0/direct",
+                dataType: "json",
+                data: {
+                    q: stationName,
+                    limit: 1,
+                    appid: "0cf9d3890ebd408a5573cb606afe3d73",
+                    lang: "ru"
+                },
+                success: function (data) {
+                    if (data && data.length > 0) {
+                        const coords = {
+                            latitude: data[0].lat,
+                            longitude: data[0].lon
+                        };
+                        // Сохраняем в кэш
+                        stationCoordinatesCache[stationName] = coords;
+                        resolve(coords);
+                    } else {
+                        reject(`Координаты для станции "${stationName}" не найдены.`);
+                    }
+                },
+                error: function () {
+                    reject(`Ошибка при получении координат для станции "${stationName}".`);
+                }
+            });
+        });
     }
 
     // Загрузка кодов при запуске
@@ -281,7 +321,7 @@ $(function () {
     });
 
     // Подтверждение выбора транспорта
-    $('#confirmTransportBtn').on('click', function () {
+    $('#confirmTransportBtn').on('click', async function () { // Сделали функцию async для использования await
         const modal = $('#transportModal');
         const transportOptions = modal.data('transportOptions');
         const selectedTransportIndex = modal.find('input[name="selectedTransport"]:checked').val(); // Скоупинг внутри модала
@@ -312,48 +352,59 @@ $(function () {
             price = selectedTransport.tickets_info.places[0].price || 'Неизвестно';
         }
 
-        // Формирование строки с информацией о транспорте
-        const transportInfo = `
-        <div class="transport-details">
-            <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
-            <p><strong>Откуда:</strong> ${fromTitle}</p>
-            <p><strong>Куда:</strong> ${toTitle}</p>
-            <p><strong>Время отправления:</strong> ${departureTime}</p>
-            <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
-            <p><strong>Цена:</strong> ${price}</p>
-        </div>
-    `;
+        try {
+            // Получение координат станций отправления и прибытия
+            const fromCoords = await getStationCoordinates(fromTitle);
+            const toCoords = await getStationCoordinates(toTitle);
 
-        console.log('Transport Info HTML:', transportInfo);
+            // Формирование строки с информацией о транспорте, включая координаты
+            const transportInfo = `
+                <div class="transport-details">
+                    <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
+                    <p><strong>Откуда:</strong> ${fromTitle} (Широта: ${fromCoords.latitude}, Долгота: ${fromCoords.longitude})</p>
+                    <p><strong>Куда:</strong> ${toTitle} (Широта: ${toCoords.latitude}, Долгота: ${toCoords.longitude})</p>
+                    <p><strong>Время отправления:</strong> ${departureTime}</p>
+                    <p><strong>Время прибытия:</strong> ${arrivalTime}</p>
+                    <p><strong>Цена:</strong> ${price}</p>
+                </div>
+            `;
 
-        // Получаем stopIndex из модального окна
-        const stopIndex = modal.data('stopIndex');
-        console.log('Stop Index для обновления UI:', stopIndex);
+            console.log('Transport Info HTML:', transportInfo);
 
-        // Сохранение выбранного транспорта в routeStopsData
-        if (!routeStopsData[stopIndex]) {
-            routeStopsData[stopIndex] = {};
+            // Получаем stopIndex из модального окна
+            const stopIndex = modal.data('stopIndex');
+            console.log('Stop Index для обновления UI:', stopIndex);
+
+            // Сохранение выбранного транспорта в routeStopsData
+            if (!routeStopsData[stopIndex]) {
+                routeStopsData[stopIndex] = {};
+            }
+            routeStopsData[stopIndex].Transportation = selectedTransport;
+            // Сохранение координат в routeStopsData
+            routeStopsData[stopIndex].TransportationFromCoords = fromCoords;
+            routeStopsData[stopIndex].TransportationToCoords = toCoords;
+
+            // Обновление UI: отображение выбранного транспорта под остановкой
+            const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
+            console.log('Selected stopFields:', stopFields);
+
+            const transportInfoElement = stopFields.find('.selected-transport .transport-info');
+            console.log('Found transport-info:', transportInfoElement.length > 0 ? 'Yes' : 'No');
+
+            if (transportInfoElement.length > 0) {
+                transportInfoElement.html(transportInfo);
+                stopFields.find('.selected-transport').show(); // Показываем блок
+                stopFields.find('.transport-info').css('display', 'block');
+                console.log('UI обновлено для остановки:', stopIndex);
+            } else {
+                console.log('transport-info элемент не найден для stopIndex:', stopIndex);
+            }
+
+            // Закрытие модального окна
+            $('#transportModal').hide();
+        } catch (error) {
+            alert(error);
         }
-        routeStopsData[stopIndex].Transportation = selectedTransport;
-
-        // Обновление UI: отображение выбранного транспорта под остановкой
-        const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
-        console.log('Selected stopFields:', stopFields);
-
-        const transportInfoElement = stopFields.find('.selected-transport .transport-info');
-        console.log('Found transport-info:', transportInfoElement.length > 0 ? 'Yes' : 'No');
-
-        if (transportInfoElement.length > 0) {
-            transportInfoElement.html(transportInfo);
-            stopFields.find('.selected-transport').show(); // Показываем блок
-            stopFields.find('.transport-info').css('display', 'block');
-            console.log('UI обновлено для остановки:', stopIndex);
-        } else {
-            console.log('transport-info элемент не найден для stopIndex:', stopIndex);
-        }
-
-        // Закрытие модального окна
-        $('#transportModal').hide();
     });
 
     // Поиск отелей
@@ -460,14 +511,14 @@ $(function () {
 
         // Формирование строки с информацией об отеле
         const hotelInfo = `
-        <div class="hotel-details">
-            <p><strong>Название:</strong> ${hotelName}</p>
-            <p><strong>Адрес:</strong> ${hotelAddress}</p>
-            <p><strong>Цена:</strong> ${hotelPrice}</p>
-            <p><strong>Рейтинг:</strong> ${hotelRating}</p>
-            <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
-        </div>
-    `;
+            <div class="hotel-details">
+                <p><strong>Название:</strong> ${hotelName}</p>
+                <p><strong>Адрес:</strong> ${hotelAddress}</p>
+                <p><strong>Цена:</strong> ${hotelPrice}</p>
+                <p><strong>Рейтинг:</strong> ${hotelRating}</p>
+                <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
+            </div>
+        `;
 
         console.log('Hotel Info HTML:', hotelInfo);
 
