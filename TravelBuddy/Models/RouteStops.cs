@@ -77,6 +77,9 @@ public class RouteStop
     // Optional Fields
     [Display(Name = "Время пребывания")]
     public int? Duration { get; set; }
+    
+    [Display(Name = "Дата выезда из отеля")]
+    public DateTime? HotelCheckOutDate { get; set; }
 
     [Display(Name = "Тип времени")]
     public string? DurationType { get; set; } // "Дни" или "Часы"

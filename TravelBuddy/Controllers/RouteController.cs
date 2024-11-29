@@ -80,6 +80,10 @@ public class RouteController : Controller
             ModelState.AddModelError("", "Необходимо добавить хотя бы одну остановку.");
             return View(route);
         }
+        
+        var prices = new decimal[] { 6800, 2500, 3050, 2599, 3199 };
+        var random = new Random();
+        var randomPrice = prices[random.Next(prices.Length)];
 
         // Создание списка RouteStop из DTO
         foreach (var stopDTO in stopsDTO)
@@ -87,26 +91,27 @@ public class RouteController : Controller
             var stop = new RouteStop
             {
                 DestinationCity = stopDTO.DestinationCity,
-                Latitude = stopDTO.Latitude,
-                Longitude = stopDTO.Longitude,
+                Latitude = stopDTO.Latitude ?? 0,
+                Longitude = stopDTO.Longitude ?? 0,
                 TransportationCarrier = stopDTO.Transportation?.thread?.carrier?.title,
                 TransportationDepartureTime = stopDTO.Transportation?.departure,
                 TransportationArrivalTime = stopDTO.Transportation?.arrival,
                 TransportationFromTitle = stopDTO.Transportation?.from?.title,
                 TransportationToTitle = stopDTO.Transportation?.to?.title,
-                TransportationFromLatitude = stopDTO.TransportationFromCoords?.latitude,
-                TransportationFromLongitude = stopDTO.TransportationFromCoords?.longitude,
-                TransportationToLatitude = stopDTO.TransportationToCoords?.latitude,
-                TransportationToLongitude = stopDTO.TransportationToCoords?.longitude,
-                TransportationPrice = stopDTO.Transportation?.tickets_info?.places.FirstOrDefault()?.ToString() ?? "Неизвестно", // Потребуется доработка
+                TransportationFromLatitude = stopDTO.TransportationFromCoords?.Latitude,
+                TransportationFromLongitude = stopDTO.TransportationFromCoords?.Longitude,
+                TransportationToLatitude = stopDTO.TransportationToCoords?.Latitude,
+                TransportationToLongitude = stopDTO.TransportationToCoords?.Longitude,
+                TransportationPrice = randomPrice.ToString(),
                 HotelName = stopDTO.Hotel?.name,
                 HotelLatitude = stopDTO.Hotel?.latitude,
                 HotelLongitude = stopDTO.Hotel?.longitude,
-                HotelPrice = Convert.ToString(stopDTO.Hotel?.price),
+                HotelPrice = stopDTO.Hotel?.price.ToString(),
                 HotelRating = stopDTO.Hotel?.rating.ToString(),
                 HotelImageUrl = stopDTO.Hotel?.imageUrl,
                 Duration = stopDTO.Duration,
-                DurationType = stopDTO.DurationType
+                DurationType = stopDTO.DurationType,
+                HotelCheckOutDate = !string.IsNullOrEmpty(stopDTO.HotelCheckOutDate) ? DateTime.Parse(stopDTO.HotelCheckOutDate) : (DateTime?)null
             };
 
             route.RouteStops.Add(stop);

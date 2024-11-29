@@ -3,18 +3,22 @@ namespace TravelBuddy.Models;
 public class RouteStopDTO
 {
     public string DestinationCity { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
     public TransportationDTO Transportation { get; set; }
-    public Coordinates TransportationFromCoords { get; set; }
-    public Coordinates TransportationToCoords { get; set; }
-
+    public CoordinatesDTO TransportationFromCoords { get; set; }
+    public CoordinatesDTO TransportationToCoords { get; set; }
     public HotelDTO Hotel { get; set; }
-
-    public DateTime? TransportationArrivalTime { get; set; }
-    public int? Duration { get; set; }
     public string DurationType { get; set; }
+    public int? Duration { get; set; }
+    public string HotelCheckOutDate { get; set; }
+}
+
+
+public class CoordinatesDTO
+{
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class TransportationDTO
@@ -100,13 +104,7 @@ public class HotelDTO
     public string name { get; set; }
     public double price { get; set; }
     public int rating { get; set; }
-    public double latitude { get; set; }
-    public double longitude { get; set; }
+    public double? latitude { get; set; }
+    public double? longitude { get; set; }
     public string imageUrl { get; set; }
-}
-
-public class Coordinates
-{
-    public double latitude { get; set; }
-    public double longitude { get; set; }
 }
