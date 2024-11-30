@@ -78,16 +78,11 @@
         <input type="text" id="hotelCheckIn" class="form-control mb-2" readonly />
         <label>Дата выезда</label>
         <input type="text" id="hotelCheckOut" class="form-control mb-2" />
-        <label>Взрослые</label>
-        <input type="number" id="hotelAdults" class="form-control mb-2" min="1" value="1" />
-        <label>Дети</label>
-        <input type="number" id="hotelChildren" class="form-control mb-2" min="0" value="0" />
         <button type="button" id="searchHotelBtn" class="btn btn-primary">Поиск</button>
         <table id="hotelOptions" class="table mt-3" style="display: none;">
             <thead>
                 <tr>
                     <th>Название</th>
-                    <th>Адрес</th>
                     <th>Цена</th>
                     <th>Выбрать</th>
                 </tr>
@@ -138,9 +133,12 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        display: flex; /* Добавлено для использования Flexbox */
         justify-content: center; /* Центрирование по горизонтали */
         align-items: center; /* Центрирование по вертикали */
+    }
+    
+    .modal.show {
+        display: flex;
     }
 
     .modal-content {

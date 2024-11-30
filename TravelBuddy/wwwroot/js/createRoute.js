@@ -293,7 +293,8 @@ $(function () {
         }
 
         $('#transportModalInfo').text(`Откуда: ${fromCity}, Куда: ${toCity}`);
-        $('#transportModal').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex).show();
+        // $('#transportModal').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex).show();
+        $('#transportModal').addClass('show').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex);
         $('#transportOptions tbody').empty();
         $('#transportOptions').hide();
         $('#confirmTransportBtn').prop('disabled', true);
@@ -336,7 +337,8 @@ $(function () {
         console.log(`Дата заезда для остановки ${stopIndex}: ${checkInDate}`);
 
         $('#hotelModalInfo').text(`Выбор отеля для ${city}`);
-        $('#hotelModal').data('stopIndex', stopIndex).data('city', city).show();
+        // $('#hotelModal').data('stopIndex', stopIndex).data('city', city).show();
+        $('#hotelModal').addClass('show').data('stopIndex', stopIndex).data('city', city);
         $('#hotelOptions tbody').empty();
         $('#hotelOptions').hide();
         $('#confirmHotelBtn').prop('disabled', true);
@@ -353,7 +355,7 @@ $(function () {
 
     // Кнопка отмены модального окна
     $(document).on('click', '.cancel-modal-btn', function () {
-        $(this).closest('.modal').hide();
+        $(this).closest('.modal').removeClass('show');
     });
 
     // Поиск транспорта (без изменений)
@@ -510,7 +512,6 @@ $(function () {
             const transportInfo = `
             <div class="transport-details">
                 <p><strong>Перевозчик:</strong> ${carrierTitle}</p>
-                <p><strong>Тип транспорта:</strong> ${transportType}</p>
                 <p><strong>Откуда:</strong> ${fromTitleOriginal} (${fromTitle})</p>
                 <p><strong>Куда:</strong> ${toTitleOriginal} (${toTitle})</p>
                 <p><strong>Время отправления:</strong> ${departureTime}</p>
@@ -569,8 +570,8 @@ $(function () {
         const city = modal.data('city');
         const checkIn = $('#hotelCheckIn').val();
         const checkOut = $('#hotelCheckOut').val();
-        const adults = parseInt($('#hotelAdults').val()) || 1;
-        const children = parseInt($('#hotelChildren').val()) || 0;
+        const adults = 1;
+        const children = 0;
 
         if (!checkOut) {
             alert('Пожалуйста, укажите дату выезда.');
@@ -620,14 +621,12 @@ $(function () {
                     console.log("Отель:", JSON.stringify(hotel, null, 2));
 
                     const hotelName = hotel.name || 'Неизвестно';
-                    const hotelAddress = hotel.address || 'Адрес не указан';
                     const hotelPrice = hotel.price ? `${hotel.price} руб.` : 'Неизвестно';
                     const hotelRating = hotel.rating ? `${hotel.rating} / 5` : 'Нет рейтинга';
 
                     $('#hotelOptions tbody').append(`
-                        <tr>
+                        <tr>                        
                             <td>${hotelName}</td>
-                            <td>${hotelAddress}</td>
                             <td>${hotelPrice}</td>
                             <td>
                                 <input type="radio" name="selectedHotel" value="${index}">
@@ -671,11 +670,19 @@ $(function () {
         const hotelLatitude = selectedHotel?.latitude || null;
         const hotelLongitude = selectedHotel?.longitude || null;
 
+        const checkInDate = $('#hotelCheckIn').val(); // Захват даты заезда
         const checkOutDate = $('#hotelCheckOut').val(); // Захват даты выезда
+
+        if (!checkInDate || !checkOutDate) {
+            alert('Пожалуйста, укажите дату заезда и выезда.');
+            return;
+        }
 
         const hotelInfo = `
         <div class="hotel-details">
             <p><strong>Название:</strong> ${hotelName}</p>
+            <p><strong>Дата заезда:</strong> ${checkInDate}</p>
+            <p><strong>Дата выезда:</strong> ${checkOutDate}</p>
             <p><strong>Координаты:</strong> Широта: ${hotelLatitude !== null ? hotelLatitude : 'Неизвестно'}, Долгота: ${hotelLongitude !== null ? hotelLongitude : 'Неизвестно'}</p>
             <p><strong>Цена:</strong> ${hotelPrice}</p>
             <p><strong>Рейтинг:</strong> ${hotelRating}</p>
@@ -693,7 +700,6 @@ $(function () {
         }
 
         try {
-            // Получение координат отеля
             const hotelCoords = await getHotelCoordinates(hotelName, modal.data('city'));
             const hotelLatitudeParsed = hotelCoords.latitude !== null ? parseFloat(hotelCoords.latitude) : null;
             const hotelLongitudeParsed = hotelCoords.longitude !== null ? parseFloat(hotelCoords.longitude) : null;
@@ -703,7 +709,8 @@ $(function () {
                 latitude: hotelLatitudeParsed,
                 longitude: hotelLongitudeParsed
             };
-            routeStopsData[stopIndex].HotelCheckOutDate = checkOutDate; // Сохранение даты выезда
+            routeStopsData[stopIndex].HotelCheckInDate = checkInDate;
+            routeStopsData[stopIndex].HotelCheckOutDate = checkOutDate;
 
             const stopFields = $('#stops-container .stop-fields[data-stop-index="' + stopIndex + '"]');
             console.log('Selected stopFields for hotel:', stopFields);
@@ -712,17 +719,9 @@ $(function () {
             console.log('Found hotel-info:', hotelInfoElement.length > 0 ? 'Yes' : 'No');
 
             if (hotelInfoElement.length > 0) {
-                hotelInfoElement.html(`
-                <div class="hotel-details">
-                    <p><strong>Название:</strong> ${hotelName}</p>
-                    <p><strong>Координаты:</strong> Широта: ${hotelCoords.latitude !== null ? hotelCoords.latitude : 'Неизвестно'}, Долгота: ${hotelCoords.longitude !== null ? hotelCoords.longitude : 'Неизвестно'}</p>
-                    <p><strong>Цена:</strong> ${hotelPrice}</p>
-                    <p><strong>Рейтинг:</strong> ${hotelRating}</p>
-                    <img src="${hotelImageUrl}" alt="${hotelName}" style="max-width: 100px; height: auto; margin-top: 10px;" />
-                </div>
-            `);
+                hotelInfoElement.html(hotelInfo);
                 stopFields.find('.selected-hotel').show();
-                stopFields.find('.hotel-info').css('display', 'block');
+                hotelInfoElement.css('display', 'block');
                 console.log('UI обновлено для остановки:', stopIndex);
             } else {
                 console.log('hotel-info элемент не найден для stopIndex:', stopIndex);
