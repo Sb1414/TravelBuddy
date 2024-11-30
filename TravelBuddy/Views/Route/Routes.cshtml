@@ -1,15 +1,54 @@
-@model List<TravelBuddy.Models.UserRoute>
+@model TravelBuddy.Models.RoutesViewModel
 @{
     ViewData["Title"] = "Маршруты";
 }
 
-<link rel="stylesheet" href="~/css/routes.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/routes.css" asp-append-version="true" />
 
 <h2 class="header-title">Маршруты</h2>
 <a class="btn btn-primary mb-3 create-route-btn" asp-action="Create">Создать маршрут</a>
 
+<!-- Форма фильтрации -->
+<form method="get" asp-action="Routes" class="form-inline mb-4">
+    <div class="form-group mr-2">
+        <label for="departureCity" class="mr-2">Город отправления:</label>
+        <select id="departureCity" name="departureCity" class="form-control">
+            <option value="">Все</option>
+            @foreach (var city in Model.DepartureCities)
+            {
+                if (city == Model.SelectedDepartureCity)
+                {
+                    <option value="@city" selected>@city</option>
+                }
+                else
+                {
+                    <option value="@city">@city</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group mr-2">
+        <label for="arrivalCity" class="mr-2">Город прибытия:</label>
+        <select id="arrivalCity" name="arrivalCity" class="form-control">
+            <option value="">Все</option>
+            @foreach (var city in Model.ArrivalCities)
+            {
+                if (city == Model.SelectedArrivalCity)
+                {
+                    <option value="@city" selected>@city</option>
+                }
+                else
+                {
+                    <option value="@city">@city</option>
+                }
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Фильтровать</button>
+</form>
+
 <div class="row">
-    @foreach (var route in Model)
+    @foreach (var route in Model.Routes)
     {
         var firstStop = route.RouteStops.FirstOrDefault();
         var lastStop = route.RouteStops.LastOrDefault();
@@ -35,7 +74,7 @@
                             var stop = stopsList[i];
                             <li>
                                 <strong>Город:</strong> @stop.DestinationCity <br />
-                                
+
                                 @if (i != stopsList.Count - 1)
                                 {
                                     <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
@@ -48,3 +87,19 @@
         </div>
     }
 </div>
+<style>
+    .form-inline {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 10px;
+    }
+    
+    .form-inline .form-group {
+        margin-bottom: 0;
+    }
+    
+    .form-inline button {
+        margin-left: auto;
+    }
+</style>

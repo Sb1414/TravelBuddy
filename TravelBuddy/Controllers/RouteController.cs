@@ -21,12 +21,59 @@ public class RouteController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Routes()
+    public async Task<IActionResult> Routes(string departureCity, string arrivalCity)
     {
+        // Получаем все маршруты с остановками
         var routes = await _context.UserRoutes
             .Include(r => r.RouteStops)
             .ToListAsync();
-        return View(routes);
+
+        // Сортируем остановки в каждом маршруте по порядку добавления
+        foreach (var route in routes)
+        {
+            route.RouteStops = route.RouteStops.OrderBy(rs => rs.Id).ToList();
+        }
+
+        // Получаем список городов отправления (первые города в маршрутах)
+        var departureCities = routes
+            .Select(r => r.RouteStops.FirstOrDefault()?.DestinationCity)
+            .Where(c => !string.IsNullOrEmpty(c))
+            .Distinct()
+            .ToList();
+
+        // Получаем список городов прибытия (последние города в маршрутах)
+        var arrivalCities = routes
+            .Select(r => r.RouteStops.LastOrDefault()?.DestinationCity)
+            .Where(c => !string.IsNullOrEmpty(c))
+            .Distinct()
+            .ToList();
+
+        // Применяем фильтры
+        if (!string.IsNullOrEmpty(departureCity))
+        {
+            routes = routes
+                .Where(r => r.RouteStops.FirstOrDefault()?.DestinationCity == departureCity)
+                .ToList();
+        }
+
+        if (!string.IsNullOrEmpty(arrivalCity))
+        {
+            routes = routes
+                .Where(r => r.RouteStops.LastOrDefault()?.DestinationCity == arrivalCity)
+                .ToList();
+        }
+
+        // Подготавливаем ViewModel
+        var model = new RoutesViewModel
+        {
+            Routes = routes,
+            DepartureCities = departureCities,
+            ArrivalCities = arrivalCities,
+            SelectedDepartureCity = departureCity,
+            SelectedArrivalCity = arrivalCity
+        };
+
+        return View(model);
     }
     
     [Authorize]
