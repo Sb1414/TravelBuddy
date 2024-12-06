@@ -23,32 +23,27 @@ public class RouteController : Controller
 
     public async Task<IActionResult> Routes(string departureCity, string arrivalCity)
     {
-        // Получаем все маршруты с остановками
         var routes = await _context.UserRoutes
             .Include(r => r.RouteStops)
             .ToListAsync();
 
-        // Сортируем остановки в каждом маршруте по порядку добавления
         foreach (var route in routes)
         {
             route.RouteStops = route.RouteStops.OrderBy(rs => rs.Id).ToList();
         }
 
-        // Получаем список городов отправления (первые города в маршрутах)
         var departureCities = routes
             .Select(r => r.RouteStops.FirstOrDefault()?.DestinationCity)
             .Where(c => !string.IsNullOrEmpty(c))
             .Distinct()
             .ToList();
 
-        // Получаем список городов прибытия (последние города в маршрутах)
         var arrivalCities = routes
             .Select(r => r.RouteStops.LastOrDefault()?.DestinationCity)
             .Where(c => !string.IsNullOrEmpty(c))
             .Distinct()
             .ToList();
 
-        // Применяем фильтры
         if (!string.IsNullOrEmpty(departureCity))
         {
             routes = routes
@@ -63,7 +58,6 @@ public class RouteController : Controller
                 .ToList();
         }
 
-        // Подготавливаем ViewModel
         var model = new RoutesViewModel
         {
             Routes = routes,
@@ -105,7 +99,6 @@ public class RouteController : Controller
         route.ApplicationUser = currentUser;
         route.RouteName = string.IsNullOrWhiteSpace(route.RouteName) ? "Маршрут" : route.RouteName;
 
-        // Десериализация routeStopsData
         List<RouteStopDTO> stopsDTO;
         try
         {
@@ -128,13 +121,12 @@ public class RouteController : Controller
             return View(route);
         }
         
-        var prices = new decimal[] { 6800, 2500, 3050, 2599, 3199 };
+        var prices = new decimal[] { 6800, 2500, 3050, 2599, 3199, 8700, 5499, 7199, 2399, 1700 };
         var random = new Random();
-        var randomPrice = prices[random.Next(prices.Length)];
 
-        // Создание списка RouteStop из DTO
         foreach (var stopDTO in stopsDTO)
         {
+            var randomPrice = prices[random.Next(prices.Length)];
             var stop = new RouteStop
             {
                 DestinationCity = stopDTO.DestinationCity,
@@ -161,7 +153,6 @@ public class RouteController : Controller
                 DurationType = stopDTO.DurationType,
                 HotelCheckOutDate = !string.IsNullOrEmpty(stopDTO.HotelCheckOutDate) ? DateTime.Parse(stopDTO.HotelCheckOutDate) : (DateTime?)null
             };
-
             route.RouteStops.Add(stop);
         }
 
@@ -186,7 +177,7 @@ public class RouteController : Controller
     {
         var route = await _context.UserRoutes
             .Include(r => r.RouteStops)
-            .Include(r => r.ApplicationUser) // Загрузка данных о пользователе
+            .Include(r => r.ApplicationUser)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (route == null)

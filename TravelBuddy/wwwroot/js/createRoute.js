@@ -293,8 +293,7 @@ $(function () {
         }
 
         $('#transportModalInfo').text(`Откуда: ${fromCity}, Куда: ${toCity}`);
-        // $('#transportModal').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex).show();
-        $('#transportModal').addClass('show').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex);
+        $('#transportModal').data('from', fromCity).data('to', toCity).data('stopIndex', stopIndex).show();
         $('#transportOptions tbody').empty();
         $('#transportOptions').hide();
         $('#confirmTransportBtn').prop('disabled', true);
@@ -337,8 +336,7 @@ $(function () {
         console.log(`Дата заезда для остановки ${stopIndex}: ${checkInDate}`);
 
         $('#hotelModalInfo').text(`Выбор отеля для ${city}`);
-        // $('#hotelModal').data('stopIndex', stopIndex).data('city', city).show();
-        $('#hotelModal').addClass('show').data('stopIndex', stopIndex).data('city', city);
+        $('#hotelModal').data('stopIndex', stopIndex).data('city', city).show();
         $('#hotelOptions tbody').empty();
         $('#hotelOptions').hide();
         $('#confirmHotelBtn').prop('disabled', true);
@@ -355,9 +353,9 @@ $(function () {
 
     // Кнопка отмены модального окна
     $(document).on('click', '.cancel-modal-btn', function () {
-        $(this).closest('.modal').removeClass('show');
+        $(this).closest('.modal').hide();
     });
-
+    
     // Поиск транспорта (без изменений)
     $('#searchTransportBtn').on('click', function () {
         const modal = $('#transportModal');
@@ -385,7 +383,7 @@ $(function () {
         }
 
         $.ajax({
-            url: `/Transport/Search`, // Предполагается, что ваш серверный API поддерживает фильтрацию по типу транспорта
+            url: `/Transport/Search`,
             method: 'POST',
             data: { from: fromCode, to: toCode, date: date, transportType: transportType },
             success: function (data) {
@@ -433,7 +431,6 @@ $(function () {
                     $('#transportOptions tbody').append(`
                         <tr>
                             <td>${carrierTitle}</td>
-                            <td>${transportTypeName}</td>
                             <td>${departureTime}</td>
                             <td>${arrivalTime}</td>
                             <td>
@@ -486,10 +483,10 @@ $(function () {
 
         if (carrierTitle.toLowerCase().includes('ржд')) {
             if (!fromTitle.toLowerCase().includes('вокзал')) {
-                fromTitle += ' вокзал';
+                fromTitle += ' железнодорожный вокзал';
             }
             if (!toTitle.toLowerCase().includes('вокзал')) {
-                toTitle += ' вокзал';
+                toTitle += ' железнодорожный вокзал';
             }
         }
         

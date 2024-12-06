@@ -230,7 +230,15 @@
     </script>
 
     <style>
-        /* Стили для кастомных иконок меток, если необходимо */
-        /* Например, можно добавить тени или эффекты */
+        table.table tbody td {
+            transition: font-size 0.3s ease-in-out, transform 0.3s ease-in-out; /* Анимация */
+        }
+    
+        table.table tbody td:hover {
+            font-size: 1.1em; /* Увеличение шрифта */
+            transform: scale(1.0); /* Легкое увеличение ячейки */
+            cursor: pointer; /* Указатель меняется на "руку" */
+        }
     </style>
+
 }
