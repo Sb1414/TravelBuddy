@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "MTm+vctH4A9yirbGOuBckSkt8pSPhomHpWlGbsSocxY=",
+  "Hash": "7glEtF8uUvBbs/AfCsEVmv33sNYIo+0V1Sp89wdxI0E=",
   "Source": "TravelBuddy",
   "BasePath": "_content/TravelBuddy",
   "Mode": "Default",
@@ -1307,6 +1307,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\transport.css"
+    },
+    {
+      "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\data\\cityCodes.json",
+      "SourceId": "TravelBuddy",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\",
+      "BasePath": "_content/TravelBuddy",
+      "RelativePath": "data/cityCodes.json",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\data\\cityCodes.json"
     },
     {
       "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\favicon.ico",

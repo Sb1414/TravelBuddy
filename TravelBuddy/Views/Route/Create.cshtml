@@ -8,48 +8,90 @@
 <div class="route-form-container">
     <form asp-action="Create" method="post" class="form-row">
         @Html.AntiForgeryToken()
-        
+
         <div class="form-group">
             <label asp-for="RouteName"></label>
             <input asp-for="RouteName" class="form-control" />
         </div>
 
         <div id="stops-container">
-            <!-- Контейнер для остановок маршрута -->
             <h4 class="stop-header">Остановки</h4>
-            <div class="stop-fields">
-                <label>Город назначения</label>
-                <input type="text" name="RouteStops[0].DestinationCity" class="form-control city-autocomplete" />
-        
-                <!-- Дополнительные поля, которые станут видимыми после нажатия на + -->
-                <div class="additional-fields mt-2" style="display: none;">
-                    <label>Средство передвижения</label>
-                    <select name="RouteStops[0].Transportation" class="form-control">
-                        <option value="Машина">Машина</option>
-                        <option value="Самолет">Самолет</option>
-                        <option value="Поезд">Поезд</option>
-                        <option value="Автобус">Автобус</option>
-                    </select>
-        
-                    <div class="form-inline mt-2">
-                        <div style="flex: 1;">
-                            <label>Время пребывания</label>
-                            <input type="number" name="RouteStops[0].Duration" class="form-control" style="width: 100%;" />
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Тип времени</label>
-                            <select name="RouteStops[0].DurationType" class="form-control" style="width: 100%;">
-                                <option value="Дни">Дни</option>
-                                <option value="Часы">Часы</option>
-                            </select>
-                        </div>
-                    </div>
+            <div class="stop-fields" data-stop-index="0">
+                <label>Город отправления</label>
+                <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
+                <div class="selected-transport mt-2" style="display: none;">
+                    <strong>Выбранный транспорт:</strong>
+                    <div class="transport-info"></div>
+                </div>
+                <div class="selected-hotel mt-2" style="display: none;">
+                    <strong>Выбранный отель:</strong>
+                    <div class="hotel-info"></div>
                 </div>
             </div>
         </div>
+        
+        <input type="hidden" id="routeStopsData" name="routeStopsData" />
         <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
         <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
     </form>
+</div>
+
+<!-- Модальные окна -->
+<div id="transportModal" class="modal">
+    <div class="modal-content">
+        <h5>Выбор транспорта</h5>
+        <p id="transportModalInfo"></p>
+        <label>Дата отправления</label>
+        <input type="text" id="transportDate" class="form-control mb-2" />
+        <label for="transportTypeSelect">Тип транспорта:</label>
+               <select id="transportTypeSelect" class="form-control">
+                   <option value="">Выберите тип</option>
+                   <option value="plane">Самолет</option>
+                   <option value="train">Поезд</option>
+                   <option value="suburban">Электричка</option>
+                   <option value="bus">Автобус</option>
+                   <option value="water">Морской транспорт</option>
+                   <option value="helicopter">Вертолет</option>
+               </select>
+        <button type="button" id="searchTransportBtn" class="btn btn-primary">Поиск</button>
+        <table id="transportOptions" class="table mt-3" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Перевозчик</th>
+                    <th>Время отправления</th>
+                    <th>Время прибытия</th>
+                    <th>Выбрать</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button type="button" id="confirmTransportBtn" class="btn btn-success mt-3" disabled>Подтвердить</button>
+        <button type="button" class="btn btn-secondary mt-3 cancel-modal-btn">Отмена</button>
+    </div>
+</div>
+
+<div id="hotelModal" class="modal">
+    <div class="modal-content">
+        <h5>Выбор отеля</h5>
+        <p id="hotelModalInfo"></p>
+        <label>Дата заезда</label>
+        <input type="text" id="hotelCheckIn" class="form-control mb-2" readonly />
+        <label>Дата выезда</label>
+        <input type="text" id="hotelCheckOut" class="form-control mb-2" />
+        <button type="button" id="searchHotelBtn" class="btn btn-primary">Поиск</button>
+        <table id="hotelOptions" class="table mt-3" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Цена</th>
+                    <th>Выбрать</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button type="button" id="confirmHotelBtn" class="btn btn-success mt-3" disabled>Подтвердить</button>
+        <button type="button" class="btn btn-secondary mt-3 cancel-modal-btn">Отмена</button>
+    </div>
 </div>
 
 <style>
@@ -82,10 +124,68 @@
     .btn {
         margin: 5px;
     }
+
+    .modal {        
+        display: none; /* Скрыто по умолчанию */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center; /* Центрирование по горизонтали */
+        align-items: center; /* Центрирование по вертикали */
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 50%;
+        max-height: 90%; /* Предотвращает выход содержимого за границы экрана */
+        overflow-y: auto; /* Добавляет прокрутку при необходимости */
+    }
+
+    .modal-content table {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .selected-info {
+        margin-top: 10px;
+    }
+
+    .selected-transport,
+    .selected-hotel {
+        background-color: #e9ecef;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .transport-details,
+    .hotel-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .transport-details p,
+    .hotel-details p {
+        margin: 2px 0;
+    }
+
+    .hotel-details img {
+        max-width: 100px;
+        height: auto;
+        margin-top: 10px;
+    }
 </style>
 
+
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/i18n/jquery-ui-i18n.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
     <script src="~/js/createRoute.js"></script>

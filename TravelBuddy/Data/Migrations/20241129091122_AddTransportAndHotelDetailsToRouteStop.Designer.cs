@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelBuddy.Data;
 
@@ -11,9 +12,11 @@ using TravelBuddy.Data;
 namespace TravelBuddy.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241129091122_AddTransportAndHotelDetailsToRouteStop")]
+    partial class AddTransportAndHotelDetailsToRouteStop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,9 +296,6 @@ namespace TravelBuddy.Data.Migrations
                     b.Property<string>("DurationType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("HotelCheckOutDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("HotelImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -351,9 +351,6 @@ namespace TravelBuddy.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("TransportationToTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransportationType")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

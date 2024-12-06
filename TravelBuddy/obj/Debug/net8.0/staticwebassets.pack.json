@@ -29,6 +29,10 @@
       "PackagePath": "staticwebassets\\css\\transport.css"
     },
     {
+      "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\data\\cityCodes.json",
+      "PackagePath": "staticwebassets\\data\\cityCodes.json"
+    },
+    {
       "Id": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },

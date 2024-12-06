@@ -1,51 +1,116 @@
-@model List<TravelBuddy.Models.UserRoute>
+@model TravelBuddy.Models.RoutesViewModel
 @{
     ViewData["Title"] = "Маршруты";
 }
 
-<link rel="stylesheet" href="~/css/routes.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/routes.css" asp-append-version="true" />
 
 <h2 class="header-title">Маршруты</h2>
 <a class="btn btn-primary mb-3 create-route-btn" asp-action="Create">Создать маршрут</a>
 
+<!-- Форма фильтрации -->
+<form method="get" asp-action="Routes" class="form-inline mb-4">
+    <div class="form-group mr-2">
+        <label for="departureCity" class="mr-2">Город отправления:</label>
+        <select id="departureCity" name="departureCity" class="form-control">
+            <option value="">Все</option>
+            @foreach (var city in Model.DepartureCities)
+            {
+                if (city == Model.SelectedDepartureCity)
+                {
+                    <option value="@city" selected>@city</option>
+                }
+                else
+                {
+                    <option value="@city">@city</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group mr-2">
+        <label for="arrivalCity" class="mr-2">Город прибытия:</label>
+        <select id="arrivalCity" name="arrivalCity" class="form-control">
+            <option value="">Все</option>
+            @foreach (var city in Model.ArrivalCities)
+            {
+                if (city == Model.SelectedArrivalCity)
+                {
+                    <option value="@city" selected>@city</option>
+                }
+                else
+                {
+                    <option value="@city">@city</option>
+                }
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Фильтровать</button>
+</form>
+
 <div class="row">
-    @foreach (var route in Model)
+    @foreach (var route in Model.Routes)
     {
-        var firstStop = route.RouteStops.FirstOrDefault();
-        var lastStop = route.RouteStops.LastOrDefault();
-        var stopsList = route.RouteStops.ToList(); // в List для поддержки индексации
+        var stopsList = route.RouteStops.ToList(); // преобразуем в List для индексированного доступа
+        var firstStop = route.RouteStops.FirstOrDefault(); 
+        var secondStop = stopsList.Count > 1 ? stopsList[1] : null; // наличие второй остановки
+        var lastStop = stopsList.LastOrDefault();
+
+        var totalCost = route.RouteStops.Sum(stop =>
+        {
+            double transportCost = 0;
+            double hotelCost = 0;
+            double.TryParse(stop.TransportationPrice, out transportCost);
+            double.TryParse(stop.HotelPrice, out hotelCost);
+            return transportCost + hotelCost;
+        });
 
         <div class="col-md-4 mb-3">
             <a asp-action="Details" asp-route-id="@route.Id" class="text-decoration-none">
                 <div class="card route-card p-3">
                     <h5 class="route-title">Название маршрута: @route.RouteName</h5>
-                    @if (firstStop != null && lastStop != null)
+                    @if (secondStop != null && lastStop != null && firstStop != null)
                     {
-                        <p>Отправление: <span class="highlight">@firstStop.DestinationCity</span></p>
-                        <p>Назначение: <span class="highlight">@lastStop.DestinationCity</span></p>
+                        <p><strong>Дата начала:</strong> @secondStop.TransportationDepartureTime?.ToString("dd.MM.yyyy HH:mm")</p>
+                        <p><strong>Дата завершения:</strong> @lastStop.TransportationArrivalTime?.ToString("dd.MM.yyyy HH:mm")</p>
+                        <p><strong>Отправление:</strong> <span class="highlight">@firstStop.DestinationCity</span></p>
+                        <p><strong>Назначение:</strong> <span class="highlight">@lastStop.DestinationCity</span></p>
                     }
                     else
                     {
-                        <p class="text-muted">Маршрут не содержит городов</p>
+                        <p class="text-muted">Маршрут не содержит достаточного количества городов</p>
                     }
                     <h6 class="stops-title">Остановки:</h6>
                     <ul class="stops-list">
-                        @for (int i = 0; i < stopsList.Count; i++)
+                        @foreach (var stop in stopsList)
                         {
-                            var stop = stopsList[i];
                             <li>
                                 <strong>Город:</strong> @stop.DestinationCity <br />
-                                
-                                @if (i != stopsList.Count - 1)
-                                {
-                                    <strong>Транспорт:</strong> @stop.Transportation <br />
-                                    <strong>Время пребывания:</strong> @stop.Duration @stop.DurationType
-                                }
                             </li>
                         }
                     </ul>
+                    @if (totalCost > 0)
+                    {
+                        <p><strong>Общая стоимость:</strong> @totalCost.ToString("C")</p>
+                    }
                 </div>
             </a>
         </div>
     }
 </div>
+
+<style>
+    .form-inline {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 10px;
+    }
+    
+    .form-inline .form-group {
+        margin-bottom: 0;
+    }
+    
+    .form-inline button {
+        margin-left: auto;
+    }
+</style>
