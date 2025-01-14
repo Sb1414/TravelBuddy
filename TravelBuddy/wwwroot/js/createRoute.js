@@ -489,6 +489,14 @@ $(function () {
                 toTitle += ' железнодорожный вокзал';
             }
         }
+
+        if (carrierTitle.toLowerCase().includes('Аэрофлот') || carrierTitle.toLowerCase().includes('S7 Airlines') || 
+            carrierTitle.toLowerCase().includes('Победа')  || carrierTitle.toLowerCase().includes('Победа') || 
+            carrierTitle.toLowerCase().includes('Аэро') || carrierTitle.toLowerCase().includes('Nordwind') || carrierTitle.toLowerCase().includes('Smartavia')) {
+            if (!fromTitle.toLowerCase().includes('аэропорт')) {
+                fromTitle += ' аэропорт';
+            }
+        }
         
         console.log(fromTitle, " ", toTitle);
 
