@@ -775,8 +775,11 @@ $(function () {
     // Функция, вызывающая Mistral AI
     function fetchCityInfo(cityName) {
         const responseDiv = document.getElementById("city-info-response");
+        const photo = document.getElementById("city-photo");
         // Очищаем предыдущий текст, чтобы "информация о предыдущем городе" пропадала
         responseDiv.innerHTML = "";
+        photo.style.display = "none";
+        photo.src = ""; // очищаем предыдущую картинку
 
         // Готовим текст запроса
         const fullContent = basePrompt + " " + cityName;
@@ -795,24 +798,25 @@ $(function () {
                 ]
             })
         })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error("Ошибка сервера: " + res.status);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                    const answer = data.choices[0].message.content || "Ответ пуст.";
-                    // Запускаем «печать» ответа
-                    typeText(responseDiv, answer.trim());
-                } else {
-                    responseDiv.innerHTML = "Некорректный формат ответа от AI.";
-                }
-            })
-            .catch(err => {
-                responseDiv.innerHTML = "Ошибка при запросе информации о городе: " + err.message;
-            });
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Ошибка сервера: " + res.status);
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                const answer = data.choices[0].message.content || "Ответ пуст.";
+                // Запускаем «печать» ответа
+                typeText(responseDiv, answer.trim());
+            } else {
+                responseDiv.innerHTML = "Некорректный формат ответа от AI.";
+            }
+        })
+        .catch(err => {
+            responseDiv.innerHTML = "Ошибка при запросе информации о городе: " + err.message;
+        });
+        fetchCityPhoto(cityName);
     }
 
     // Подключаемся к событию выбора города в вашем autocomplete
@@ -823,4 +827,55 @@ $(function () {
             fetchCityInfo(cityName);
         });
     });
+
+    async function fetchCityPhoto(cityName) {
+        const photo = document.getElementById("city-photo");
+        photo.style.display = "none";
+        photo.src = "";
+
+        try {
+            // Загружаем JSON с фотографиями городов
+            const response = await fetch('/data/cityPhotoLinks.json');
+            const cityPhotos = await response.json();
+
+            // Ищем фото для указанного города
+            let photoUrl;
+
+            if (cityPhotos[cityName]) {
+                // Если есть прямое совпадение
+                photoUrl = cityPhotos[cityName];
+            } else {
+                // Ищем совпадение без учета регистра
+                const normalizedCityName = cityName.toLowerCase();
+                const foundCity = Object.keys(cityPhotos).find(key =>
+                    key.toLowerCase() === normalizedCityName &&
+                    !Array.isArray(cityPhotos[key])
+                );
+
+                if (foundCity) {
+                    photoUrl = cityPhotos[foundCity];
+                } else if (cityPhotos.Other && cityPhotos.Other.length > 0) {
+                    // Берем случайное фото из Other
+                    const randomIndex = Math.floor(Math.random() * cityPhotos.Other.length);
+                    photoUrl = cityPhotos.Other[randomIndex];
+                } else {
+                    throw new Error("Нет доступных фотографий");
+                }
+            }
+
+            // Устанавливаем фото
+            photo.onload = () => photo.style.display = "block";
+            photo.onerror = () => {
+                console.log("Ошибка загрузки изображения");
+                photo.src = "https://via.placeholder.com/600x400?text=Изображение+не+доступно";
+                photo.style.display = "block";
+            };
+            photo.src = photoUrl;
+
+        } catch (error) {
+            console.error("Ошибка при загрузке фото города:", error);
+            photo.src = "https://via.placeholder.com/600x400?text=Изображение+не+доступно";
+            photo.style.display = "block";
+        }
+    }
 });
