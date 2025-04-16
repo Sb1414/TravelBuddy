@@ -4,6 +4,9 @@
 @{
     ViewData["Title"] = "Детали маршрута";
 
+    // Функция для округления в большую сторону
+    Func<decimal, decimal> RoundUp = (value) => Math.Ceiling(value);
+    
     // Создаем упорядоченный список точек маршрута для карты
     var orderedPoints = new List<dynamic>();
 
@@ -51,10 +54,10 @@
     var departureCity = Model.RouteStops.OrderBy(stop => stop.Id).FirstOrDefault()?.DestinationCity ?? "Неизвестно";
 
     var totalTransportPrice = Model.RouteStops.Sum(stop => 
-        decimal.TryParse(stop.TransportationPrice, out var transportPrice) ? transportPrice : 0);
+        decimal.TryParse(stop.TransportationPrice, out var transportPrice) ? RoundUp(transportPrice) : 0);
 
     var totalHotelPrice = Model.RouteStops.Sum(stop => 
-        decimal.TryParse(stop.HotelPrice, out var hotelPrice) ? hotelPrice : 0);
+        decimal.TryParse(stop.HotelPrice, out var hotelPrice) ? RoundUp(hotelPrice) : 0);
 }
 
 <h2>Детали маршрута</h2>
@@ -88,11 +91,13 @@
             </thead>
             <tbody>
                 @{
-                    // Пропускаем первую точку (город отправления)
                     var stops = Model.RouteStops.OrderBy(stop => stop.Id).Skip(1);
                     int rowNumber = 1;
                     foreach(var stop in stops)
                     {
+                        var transportPrice = decimal.TryParse(stop.TransportationPrice, out var tPrice) ? RoundUp(tPrice).ToString("0") : "—";
+                        var hotelPrice = decimal.TryParse(stop.HotelPrice, out var hPrice) ? RoundUp(hPrice).ToString("0") : "—";
+                        
                         <tr>
                             <td>@rowNumber</td>
                             <td>@stop.DestinationCity</td>
@@ -101,10 +106,10 @@
                             <td>@(stop.TransportationArrivalTime.HasValue ? stop.TransportationArrivalTime.Value.ToString("dd.MM.yyyy HH:mm") : "—")</td>
                             <td>@stop.TransportationFromTitle</td>
                             <td>@stop.TransportationToTitle</td>
-                            <td>@stop.TransportationPrice</td>
+                            <td>@transportPrice ₽</td>
                             <td>@stop.HotelName</td>
                             <td>@(stop.HotelCheckOutDate.HasValue ? stop.HotelCheckOutDate.Value.ToString("dd.MM.yyyy") : "—")</td>
-                            <td>@stop.HotelPrice</td>
+                            <td>@hotelPrice ₽</td>
                         </tr>
                         rowNumber++;
                     }
@@ -186,7 +191,7 @@
                     iconLayout: 'default#image',
                     iconImageHref: iconUrl,
                     iconImageSize: [30, 30],
-                    iconImageOffset: [-15, -30] // Центрирование иконки
+                    iconImageOffset: [-15, -30]
                 });
 
                 geoObjects.add(placemark);
@@ -235,10 +240,16 @@
         }
     
         table.table tbody td:hover {
-            font-size: 1.1em; /* Увеличение шрифта */
-            transform: scale(1.0); /* Легкое увеличение ячейки */
-            cursor: pointer; /* Указатель меняется на "руку" */
+            font-size: 1.1em;
+            transform: scale(1.0);
+            cursor: pointer;
+        }
+        
+        /* Стиль для цен - выделяем жирным */
+        table.table tbody td:nth-child(8),
+        table.table tbody td:nth-child(11) {
+            font-weight: bold;
+            color: #28a745;
         }
     </style>
-
 }
