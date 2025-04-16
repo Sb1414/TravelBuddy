@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "7glEtF8uUvBbs/AfCsEVmv33sNYIo+0V1Sp89wdxI0E=",
+  "Hash": "bzeCTJAoYsEFi2OLZdUbm0zLIFARpQA9ZwjJ/Dsqcyw=",
   "Source": "TravelBuddy",
   "BasePath": "_content/TravelBuddy",
   "Mode": "Default",
@@ -1326,6 +1326,25 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\data\\cityCodes.json"
+    },
+    {
+      "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\data\\cityPhotoLinks.json",
+      "SourceId": "TravelBuddy",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\",
+      "BasePath": "_content/TravelBuddy",
+      "RelativePath": "data/cityPhotoLinks.json",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\data\\cityPhotoLinks.json"
     },
     {
       "Identity": "C:\\Users\\Sabina.Kalkamanova\\source\\repos\\TravelBuddy\\TravelBuddy\\wwwroot\\favicon.ico",
