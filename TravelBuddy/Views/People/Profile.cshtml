@@ -8,7 +8,8 @@
     <div class="row">
         <!-- Левая часть: карточка с информацией о пользователе -->
         <div class="col-md-4">
-            <div class="p-4 rounded" style="background-color: rgba(0, 0, 0, 0.1); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <h4>Профиль</h4>
+            <div class="p-4 user-profile-card">
                 <div class="text-center">
                     <img src="@Model.ProfilePictureUrl" alt="Фото пользователя" class="rounded-circle mb-3" style="width: 120px; height: 120px;">
                     <h3>@Model.FullName</h3>
@@ -25,31 +26,150 @@
         </div>
 
         <!-- Правая часть: маршруты пользователя -->
-        <div class="col-md-8">
-            <h4>Маршруты пользователя</h4>
-            <div class="row">
-                @if (Model.UserRoutes.Any())
-                {
-                    @foreach (var route in Model.UserRoutes)
-                    {
-                        var firstStop = route.RouteStops.FirstOrDefault();
-                        var lastStop = route.RouteStops.LastOrDefault();
-                        
-                        <div class="col-md-6 mb-3">
-                            <div class="card p-3 h-100">
-                                <h5 class="card-title">@route.RouteName</h5>
-                                <p><strong>Отправление:</strong> @firstStop?.DestinationCity</p>
-                                <p><strong>Назначение:</strong> @lastStop?.DestinationCity</p>
-                                <a asp-controller="Route" asp-action="Details" asp-route-id="@route.Id" class="btn btn-primary mt-3">Подробнее</a>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p>Маршруты не найдены.</p>
-                }
-            </div>
-        </div>
+         <div class="col-md-8">
+             <h4>Маршруты пользователя</h4>
+             <div class="row">
+                 @if (Model.UserRoutes.Any())
+                 {
+                     @foreach (var route in Model.UserRoutes)
+                     {
+                         var firstStop = route.RouteStops.FirstOrDefault();
+                         var lastStop = route.RouteStops.LastOrDefault();
+                         
+                         <div class="col-md-6 mb-3">
+                             <div class="p-4 user-profile-card h-100" onclick="window.location.href='@Url.Action("Details", "Route", new { id = route.Id })'">
+                                 <h5 class="card-title">@route.RouteName</h5>
+                                 <p><strong>Отправление:</strong> @firstStop?.DestinationCity</p>
+                                 <p><strong>Назначение:</strong> @lastStop?.DestinationCity</p>
+         
+                                 <!-- Добавляем города отправления и прибытия -->
+                                 @if (firstStop != null && lastStop != null)
+                                 {
+                                     <p><strong>Город отправления:</strong> @firstStop.DestinationCity</p>
+                                     <p><strong>Город прибытия:</strong> @lastStop.DestinationCity</p>
+                                 }
+                             </div>
+                         </div>
+                     }
+                 }
+                 else
+                 {
+                     <p>Маршруты не найдены.</p>
+                 }
+             </div>
+         </div>
     </div>
 </div>
+
+<style>
+    .user-profile-card {
+        background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
+        backdrop-filter: blur(10px); /* Эффект размытия заднего плана */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+        border-radius: 10px; /* Скругленные углы */
+    }
+
+    .user-profile-card img {
+        border: 2px solid #ddd; /* Рамка вокруг изображения */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    }
+
+    .user-profile-card h3 {
+        color: #333; /* Темный текст */
+        font-weight: bold;
+    }
+
+    .user-profile-card p {
+        color: #555; /* Серый текст */
+    }
+
+    .user-profile-card .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .card-style {
+        background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
+        backdrop-filter: blur(10px); /* Эффект размытия заднего плана */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+        border-radius: 10px; /* Скругленные углы */
+        padding: 1.5rem; /* Отступы внутри */
+        cursor: pointer;
+    }
+
+    .card-style img {
+        border: 2px solid #ddd; /* Рамка вокруг изображения */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    }
+
+    .card-style h3, .card-style h5 {
+        color: #333; /* Темный текст */
+        font-weight: bold;
+    }
+
+    .card-style p {
+        color: #555; /* Серый текст */
+    }
+
+    .card-style .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .user-profile-card {
+        background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
+        backdrop-filter: blur(10px); /* Эффект размытия заднего плана */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+        border-radius: 10px; /* Скругленные углы */
+        transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Плавные эффекты */
+    }
+
+    .user-profile-card img {
+        border: 2px solid #ddd; /* Рамка вокруг изображения */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    }
+
+    .user-profile-card h3, 
+    .user-profile-card h5, 
+    .user-profile-card p {
+        color: #555; /* Базовый цвет текста */
+        transition: color 0.3s ease; /* Плавный переход цвета */
+    }
+
+    .user-profile-card:hover {
+        transform: scale(1.05); /* Увеличение карточки */
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); /* Усиление тени */
+    }
+
+    .user-profile-card:hover h3, 
+    .user-profile-card:hover h5, 
+    .user-profile-card:hover p {
+        color: #000; /* Изменение текста на черный при наведении */
+    }
+
+    .user-profile-card .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .card-style {
+        background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
+        backdrop-filter: blur(10px); /* Эффект размытия заднего плана */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+        border-radius: 10px; /* Скругленные углы */
+        padding: 1.5rem; /* Отступы внутри */
+        transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Плавные эффекты */
+    }
+
+    .card-style:hover {
+        transform: scale(1.05); /* Увеличение карточки */
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); /* Усиление тени */
+    }
+
+    .card-style:hover h3, 
+    .card-style:hover h5, 
+    .card-style:hover p {
+        color: #000; /* Изменение текста на черный при наведении */
+    }
+</style>
+
+

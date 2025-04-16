@@ -53,8 +53,11 @@ public class HotelService
                 Name = (string)item["hotelName"],
                 Price = (decimal?)item["priceAvg"] ?? 0,
                 Rating = (float?)item["stars"] ?? 0,
-                Address = (string)item["address"] ?? "Адрес не указан",
-                ImageUrl = (string)item["imageUrl"] ?? "/images/no-image.png"
+                // Адрес больше не нужен
+                // Address = (string)item["address"] ?? "Адрес не указан",
+                ImageUrl = (string)item["imageUrl"] ?? "/images/no-image.png",
+                Latitude = (double)item["location"]["geo"]["lat"],
+                Longitude = (double)item["location"]["geo"]["lon"]
             });
         }
 
