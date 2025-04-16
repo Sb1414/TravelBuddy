@@ -5,35 +5,46 @@
 
 <h2 class="header-title">Создать маршрут</h2>
 
-<div class="route-form-container">
-    <form asp-action="Create" method="post" class="form-row">
-        @Html.AntiForgeryToken()
+<div style="display: flex; align-items: flex-start;">
+    <!-- Левая часть: форма создания маршрута -->
+    <div class="route-form-container" style="width: 65%; margin-right: 20px;">
+        <form asp-action="Create" method="post" class="form-row">
+            @Html.AntiForgeryToken()
 
-        <div class="form-group">
-            <label asp-for="RouteName"></label>
-            <input asp-for="RouteName" class="form-control" />
-        </div>
+            <div class="form-group">
+                <label asp-for="RouteName"></label>
+                <input asp-for="RouteName" class="form-control" />
+            </div>
 
-        <div id="stops-container">
-            <h4 class="stop-header">Остановки</h4>
-            <div class="stop-fields" data-stop-index="0">
-                <label>Город отправления</label>
-                <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
-                <div class="selected-transport mt-2" style="display: none;">
-                    <strong>Выбранный транспорт:</strong>
-                    <div class="transport-info"></div>
-                </div>
-                <div class="selected-hotel mt-2" style="display: none;">
-                    <strong>Выбранный отель:</strong>
-                    <div class="hotel-info"></div>
+            <div id="stops-container">
+                <h4 class="stop-header">Остановки</h4>
+                <div class="stop-fields" data-stop-index="0">
+                    <label>Город отправления</label>
+                    <input type="text" id="initialCity" name="RouteStops[0].FromCity" class="form-control city-autocomplete" />
+                    <div class="selected-transport mt-2" style="display: none;">
+                        <strong>Выбранный транспорт:</strong>
+                        <div class="transport-info"></div>
+                    </div>
+                    <div class="selected-hotel mt-2" style="display: none;">
+                        <strong>Выбранный отель:</strong>
+                        <div class="hotel-info"></div>
+                    </div>
                 </div>
             </div>
+            
+            <input type="hidden" id="routeStopsData" name="routeStopsData" />
+            <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
+            <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
+        </form>
+    </div>
+
+    <!-- Правая часть: контейнер чата/информации о городе -->
+    <div class="chat-container">
+        <h3 style="text-align: center;">Информация о городе</h3>
+        <div id="city-info-response">
+            <!-- Сюда «печатаем» текст об очередном выбранном городе -->
         </div>
-        
-        <input type="hidden" id="routeStopsData" name="routeStopsData" />
-        <button type="button" id="add-stop-btn" class="btn btn-secondary mt-3">+ Добавить остановку</button>
-        <button type="submit" class="btn btn-primary mt-3">Создать маршрут</button>
-    </form>
+    </div>
 </div>
 
 <!-- Модальные окна -->
@@ -179,6 +190,40 @@
         max-width: 100px;
         height: auto;
         margin-top: 10px;
+    }
+    
+    /* Блок информации о городе */
+    .chat-container {
+        width: 35%;                /* Ширина блока справа */
+        background-color: rgba(0, 0, 0, 0.2);
+        color: #fff;               /* Общий цвет текста */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        margin-left: 20px;         /* Отступ от формы слева */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    
+    /* Заголовок в блоке города */
+    h3 {
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    /* Само «окно вывода» */
+    #city-info-response {
+        background-color: rgba(255, 255, 255, 0.1); /* немного светлее, чтобы отделялось */
+        border-radius: 5px;
+        padding: 15px;
+        min-height: 150px;
+        min-width: 450px;
+        max-height: 600px; /* чтобы при длинном тексте была прокрутка */
+        overflow-y: auto;
+        line-height: 1.4;  /* удобочитаемость текста */
     }
 </style>
 

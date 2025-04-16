@@ -11,7 +11,6 @@ namespace TravelBuddy.Data
 		{
 		}
 
-		// Добавьте DbSet для сообщений
 		public DbSet<Message> Messages { get; set; }
 		public DbSet<UserRoute> Routes { get; set; }
 		public DbSet<RouteStop> RouteStops { get; set; }
@@ -21,7 +20,6 @@ namespace TravelBuddy.Data
 		{
 			base.OnModelCreating(modelBuilder);
 
-			// Дополнительная настройка модели для Message, если требуется
 			modelBuilder.Entity<Message>()
 				.HasOne(m => m.Sender)
 				.WithMany()

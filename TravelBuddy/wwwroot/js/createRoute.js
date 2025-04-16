@@ -228,6 +228,9 @@ $(function () {
                     routeStopsData[stopIndex].Longitude = ui.item.longitude;
                 }
                 console.log("Остановка ", stopIndex, " обновлена: ", routeStopsData[stopIndex]);
+                // ВЫЗЫВАЕМ событие, которое перехватит наш чат-скрипт и дернет fetchCityInfo:
+                // Передаем cityName в виде ui.item.value
+                $(this).trigger("autocompleteSelectCity", [ui.item.value]);
             }
         });
     });
@@ -751,5 +754,73 @@ $(function () {
     // Отправка формы с данными маршрута
     $('form').on('submit', function (e) {
         $('#routeStopsData').val(JSON.stringify(routeStopsData));
+    });
+    
+    // Информация о выбранном городе в блоке справа
+    const API_KEY = "Szaz6ODj6BwedXkAjNSXetlMkAenbkmV";
+
+    // Базовый промпт — просим "дать подробную информацию о городе"
+    const basePrompt = "Отвечай кратко и на русском языке, не более 3 предложений. Дай мне основную информацию про город:";
+
+    // Эффект «печати» текста
+    function typeText(element, text, index = 0) {
+        if (index < text.length) {
+            element.innerHTML += text.charAt(index);
+            setTimeout(() => {
+                typeText(element, text, index + 1);
+            }, 20); // Скорость "печати"
+        }
+    }
+
+    // Функция, вызывающая Mistral AI
+    function fetchCityInfo(cityName) {
+        const responseDiv = document.getElementById("city-info-response");
+        // Очищаем предыдущий текст, чтобы "информация о предыдущем городе" пропадала
+        responseDiv.innerHTML = "";
+
+        // Готовим текст запроса
+        const fullContent = basePrompt + " " + cityName;
+
+        // Делаем запрос к API
+        fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "mistral-small",
+                messages: [
+                    { role: "user", content: fullContent }
+                ]
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Ошибка сервера: " + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                    const answer = data.choices[0].message.content || "Ответ пуст.";
+                    // Запускаем «печать» ответа
+                    typeText(responseDiv, answer.trim());
+                } else {
+                    responseDiv.innerHTML = "Некорректный формат ответа от AI.";
+                }
+            })
+            .catch(err => {
+                responseDiv.innerHTML = "Ошибка при запросе информации о городе: " + err.message;
+            });
+    }
+
+    // Подключаемся к событию выбора города в вашем autocomplete
+    $(document).ready(function() {
+        // Перехват события "select" в jQuery UI Autocomplete.
+        // Ищем все элементы с классом .city-autocomplete
+        $(document).on("autocompleteSelectCity", ".city-autocomplete", function(event, cityName) {
+            fetchCityInfo(cityName);
+        });
     });
 });
