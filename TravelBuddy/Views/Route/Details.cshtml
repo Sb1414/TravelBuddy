@@ -233,6 +233,59 @@
             }
         }
     </script>
+    
+    <script>
+        let cityPhotoMap = {};
+        let cityOtherPhotos = [];
+    
+        // Загружаем json с фото
+        fetch('/data/cityPhotoLinks.json')
+            .then(res => res.json())
+            .then(data => {
+                cityPhotoMap = data;
+                cityOtherPhotos = data.Other || [];
+            });
+    
+        function getPhotoByCity(cityName) {
+            if (cityPhotoMap[cityName]) {
+                return cityPhotoMap[cityName];
+            }
+    
+            if (cityOtherPhotos.length > 0) {
+                const randomIndex = Math.floor(Math.random() * cityOtherPhotos.length);
+                return cityOtherPhotos[randomIndex];
+            }
+    
+            return null;
+        }
+    
+        // При наведении на строку таблицы
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.querySelector("table.table tbody");
+            const bgOverlay = document.getElementById("cityBackground");
+    
+            if (!table || !bgOverlay) return;
+    
+            table.addEventListener("mouseover", function (e) {
+                const tr = e.target.closest("tr");
+                if (!tr) return;
+    
+                const cityCell = tr.cells[1]; // 2-я колонка — Город
+                if (!cityCell) return;
+    
+                const city = cityCell.textContent.trim();
+                const photoUrl = getPhotoByCity(city);
+                if (photoUrl) {
+                    bgOverlay.style.backgroundImage = `url("${photoUrl}")`;
+                    bgOverlay.style.opacity = "0.2";
+                }
+            });
+    
+            table.addEventListener("mouseout", function () {
+                bgOverlay.style.opacity = "0";
+            });
+        });
+    </script>
 
     <style>
         table.table tbody td {
@@ -250,6 +303,31 @@
         table.table tbody td:nth-child(11) {
             font-weight: bold;
             color: #28a745;
+        }
+        
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .city-bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none; /* чтобы не мешал кликам */
+        }
+        
+        .shape-2 {
+            opacity: 0.2;
         }
     </style>
 }

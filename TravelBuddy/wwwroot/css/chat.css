@@ -131,3 +131,7 @@ button {
 .user-item:hover {
     background-color: #f0f0f0; /* Подсветка при наведении */
 }
+
+.shape-1, .shape-4 {
+    opacity: 0.2;
+}
